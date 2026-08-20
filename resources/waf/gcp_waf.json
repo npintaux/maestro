@@ -1,0 +1,86 @@
+{
+  "framework": "Google Cloud Architecture Framework",
+  "version": "canonical-live",
+  "base_docs_url": "https://cloud.google.com/architecture/framework",
+  "skills_repository": "https://github.com/google/skills/tree/main/skills/cloud",
+  "pillars": {
+    "system_design": {
+      "name": "System Design",
+      "docs_url": "https://cloud.google.com/architecture/framework/system-design",
+      "skill_url": "https://raw.githubusercontent.com/google/skills/main/skills/cloud/google-cloud-solution-architecture/SKILL.md",
+      "focus": [
+        "Geographic placement & multi-region vs regional topology",
+        "Compute selection (Cloud Run, GKE, Cloud Functions)",
+        "Storage selection & lifecycle policies",
+        "Networking & VPC design",
+        "Database design (Spanner, Cloud SQL, AlloyDB, Firestore)"
+      ]
+    },
+    "operational_excellence": {
+      "name": "Operational Excellence",
+      "docs_url": "https://cloud.google.com/architecture/framework/operational-excellence",
+      "skill_url": "https://raw.githubusercontent.com/google/skills/main/skills/cloud/google-cloud-waf-operational-excellence/SKILL.md",
+      "focus": [
+        "CloudOps readiness & CI/CD deployment automation",
+        "Service Level Objectives (SLOs) & Error Budget policies",
+        "Structured Cloud Logging & Cloud Monitoring",
+        "Incident management, alerts & automated health checks"
+      ]
+    },
+    "security": {
+      "name": "Security, Privacy, and Compliance",
+      "docs_url": "https://cloud.google.com/architecture/framework/security",
+      "skill_url": "https://raw.githubusercontent.com/google/skills/main/skills/cloud/google-cloud-waf-security/SKILL.md",
+      "focus": [
+        "Zero-trust network architecture (IAP, VPC Service Controls)",
+        "IAM least-privilege & Workload Identity Federation",
+        "Secret Manager & Cloud KMS encryption key management",
+        "Data protection & encryption at rest/in-transit",
+        "Cloud Armor perimeter defense & DDoS mitigation"
+      ]
+    },
+    "reliability": {
+      "name": "Reliability",
+      "docs_url": "https://cloud.google.com/architecture/framework/reliability",
+      "skill_url": "https://raw.githubusercontent.com/google/skills/main/skills/cloud/google-cloud-waf-reliability/SKILL.md",
+      "focus": [
+        "High availability & zonal/regional redundancy",
+        "Idempotency & retry policies with exponential backoff",
+        "Graceful degradation, circuit breakers & rate limiting",
+        "Disaster recovery (DR), RTO/RPO targets & automated backups"
+      ]
+    },
+    "cost_optimization": {
+      "name": "Cost Optimization",
+      "docs_url": "https://cloud.google.com/architecture/framework/cost-optimization",
+      "skill_url": "https://raw.githubusercontent.com/google/skills/main/skills/cloud/google-cloud-waf-cost-optimization/SKILL.md",
+      "focus": [
+        "Auto-scaling to zero on idle workloads",
+        "Managed serverless services vs IaaS overhead",
+        "Resource sizing, concurrency & memory tuning",
+        "Budgets, billing alerts & cost attribution tagging"
+      ]
+    },
+    "performance": {
+      "name": "Performance Optimization",
+      "docs_url": "https://cloud.google.com/architecture/framework/performance",
+      "skill_url": "https://raw.githubusercontent.com/google/skills/main/skills/cloud/google-cloud-waf-performance-optimization/SKILL.md",
+      "focus": [
+        "Connection pooling & asynchronous execution",
+        "Low-latency caching (Memorystore Redis/Memcached)",
+        "Async event processing (Pub/Sub, Eventarc, Cloud Tasks)",
+        "Compute auto-scaling & Global HTTP(S) Load Balancing"
+      ]
+    },
+    "sustainability": {
+      "name": "Sustainability",
+      "docs_url": "https://cloud.google.com/architecture/framework/sustainability",
+      "skill_url": "https://raw.githubusercontent.com/google/skills/main/skills/cloud/google-cloud-waf-sustainability/SKILL.md",
+      "focus": [
+        "Selecting low-carbon GCP regions (Carbon Free Energy %)",
+        "Efficient resource utilization & rightsizing",
+        "Minimizing idle compute and orphaned storage"
+      ]
+    }
+  }
+}

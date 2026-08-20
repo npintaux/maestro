@@ -1,0 +1,129 @@
+{
+  "skill": "prd-validate",
+  "_help": "19 real queries across 4 quadrants with a 60/40 train/validation split.",
+  "queries": [
+    {
+      "quadrant": "Q1_direct",
+      "query": "validate this PRD draft",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q1_direct",
+      "query": "/prd-validate docs/draft_prd.md",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q1_direct",
+      "query": "perform intake assessment on these user requirements",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q1_direct",
+      "query": "audit requirements against Google Cloud WAF before starting architecture",
+      "expect": "trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q1_direct",
+      "query": "run the intake gatekeeper on my project specification",
+      "expect": "trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q2_colloquial",
+      "query": "here are my initial requirements for a new microservice, help me flesh it out into a complete PRD",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q2_colloquial",
+      "query": "check if our product specs are missing any important non-functional requirements or SLOs",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q2_colloquial",
+      "query": "make sure my user stories and acceptance criteria are ready for the architect",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q2_colloquial",
+      "query": "turn this raw feature request into a frozen PRD with WAF compliance",
+      "expect": "trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q2_colloquial",
+      "query": "review these project requirements and ask me questions to fill the gaps",
+      "expect": "trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q3_near_miss",
+      "query": "write a Python script to validate OpenAPI yaml contracts",
+      "expect": "no-trigger",
+      "split": "train",
+      "note": "contract validation tooling task, not PRD intake"
+    },
+    {
+      "quadrant": "Q3_near_miss",
+      "query": "design the GCP architecture and component diagram for our backend",
+      "expect": "no-trigger",
+      "split": "train",
+      "note": "architecture design task, handled by architect-design"
+    },
+    {
+      "quadrant": "Q3_near_miss",
+      "query": "perform a STRIDE threat model security review on our deployed API",
+      "expect": "no-trigger",
+      "split": "train",
+      "note": "security audit task, handled by secops-audit"
+    },
+    {
+      "quadrant": "Q3_near_miss",
+      "query": "run pytest and verify 100% test coverage",
+      "expect": "no-trigger",
+      "split": "val",
+      "note": "testing task, handled by gate runner / test architect"
+    },
+    {
+      "quadrant": "Q3_near_miss",
+      "query": "validate my JSON schema against draft-07",
+      "expect": "no-trigger",
+      "split": "val",
+      "note": "JSON schema validation, not PRD intake"
+    },
+    {
+      "quadrant": "Q4_sibling_adjacent",
+      "query": "break down this frozen PRD into subsystem modules and openapi specs",
+      "expect": "no-trigger",
+      "split": "train",
+      "note": "subsystem decomposition, handled by lead-decompose"
+    },
+    {
+      "quadrant": "Q4_sibling_adjacent",
+      "query": "sync our PRD user stories to GitHub Issues with labels",
+      "expect": "no-trigger",
+      "split": "train",
+      "note": "backlog sync task, handled by prd-to-backlog"
+    },
+    {
+      "quadrant": "Q4_sibling_adjacent",
+      "query": "implement user story US-1 using strict Python TDD",
+      "expect": "no-trigger",
+      "split": "val",
+      "note": "implementation task, handled by implement"
+    },
+    {
+      "quadrant": "Q4_sibling_adjacent",
+      "query": "review the git diff and commit changes for issue #12",
+      "expect": "no-trigger",
+      "split": "val",
+      "note": "code review and commit, handled by code-review and commit"
+    }
+  ]
+}

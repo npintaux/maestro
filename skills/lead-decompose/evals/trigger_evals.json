@@ -1,0 +1,129 @@
+{
+  "skill": "lead-decompose",
+  "_help": "19 real queries across 4 quadrants with a 60/40 train/validation split.",
+  "queries": [
+    {
+      "quadrant": "Q1_direct",
+      "query": "decompose the billing subsystem and author its OpenAPI spec",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q1_direct",
+      "query": "/lead-decompose src/modules/billing",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q1_direct",
+      "query": "create SPEC.md and openapi.yaml for the order lifecycle module",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q1_direct",
+      "query": "design the Rule ABC classes and engine composition for the notifications subsystem",
+      "expect": "trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q1_direct",
+      "query": "perform Gate 1 micro-decomposition for the customer accounts subsystem",
+      "expect": "trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q2_colloquial",
+      "query": "here is the architecture and PRD, now break down the authentication subsystem into technical rules",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q2_colloquial",
+      "query": "we need the technical specification and API schemas for the payments worker",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q2_colloquial",
+      "query": "write the SDD blueprint and data models for the billing microservice",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q2_colloquial",
+      "query": "structure the decision engine and define the business rule classes for this module",
+      "expect": "trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q2_colloquial",
+      "query": "draft the OpenAPI contract and exception mappings for the catalog subsystem",
+      "expect": "trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q3_near_miss",
+      "query": "validate the draft PRD and interview me on missing NFRs",
+      "expect": "no-trigger",
+      "split": "train",
+      "note": "PRD intake validation, handled by prd-validate"
+    },
+    {
+      "quadrant": "Q3_near_miss",
+      "query": "design the global macro-architecture topology on GCP",
+      "expect": "no-trigger",
+      "split": "train",
+      "note": "macro-architecture design, handled by architect-design"
+    },
+    {
+      "quadrant": "Q3_near_miss",
+      "query": "perform a STRIDE threat modeling security audit on architecture.md",
+      "expect": "no-trigger",
+      "split": "train",
+      "note": "security audit task, handled by secops-audit"
+    },
+    {
+      "quadrant": "Q3_near_miss",
+      "query": "implement Rule R1 using Python TDD",
+      "expect": "no-trigger",
+      "split": "val",
+      "note": "code implementation task, handled by implement"
+    },
+    {
+      "quadrant": "Q3_near_miss",
+      "query": "check directory boundary violations for the billing subagent",
+      "expect": "no-trigger",
+      "split": "val",
+      "note": "boundary checking tool, handled by check_boundaries"
+    },
+    {
+      "quadrant": "Q4_sibling_adjacent",
+      "query": "write black-box contract tests verifying the billing API",
+      "expect": "no-trigger",
+      "split": "train",
+      "note": "test architecture task, handled by test-architect"
+    },
+    {
+      "quadrant": "Q4_sibling_adjacent",
+      "query": "conduct an object-oriented code review of the engine implementation",
+      "expect": "no-trigger",
+      "split": "train",
+      "note": "code review task, handled by code-review"
+    },
+    {
+      "quadrant": "Q4_sibling_adjacent",
+      "query": "stage and commit Rule R2 with conventional commit message",
+      "expect": "no-trigger",
+      "split": "val",
+      "note": "commit task, handled by commit"
+    },
+    {
+      "quadrant": "Q4_sibling_adjacent",
+      "query": "deliver and merge the completed issue branch into main",
+      "expect": "no-trigger",
+      "split": "val",
+      "note": "ship task, handled by ship"
+    }
+  ]
+}

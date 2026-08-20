@@ -1,0 +1,126 @@
+{
+  "skill": "conduct",
+  "_help": "20 real queries across 4 quadrants with a 60/40 train/validation split.",
+  "queries": [
+    {
+      "quadrant": "Q1_direct",
+      "query": "/conduct build an IoT telemetry ingestion service from scratch",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q1_direct",
+      "query": "Conduct end-to-end software delivery for the URL redirect resolver starting from requirements",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q1_direct",
+      "query": "Orchestrate the full multi-phase build of our payment gateway system across all gates",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q1_direct",
+      "query": "Execute an end-to-end spine run from PRD through ADRs, implementation, and quality gates",
+      "expect": "trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q1_direct",
+      "query": "Run Maestro lifecycle conductor across all phases for docs/PRD.md",
+      "expect": "trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q2_colloquial",
+      "query": "Build this application end-to-end through all architecture, decomposition, and implementation gates",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q2_colloquial",
+      "query": "Take this project request from concept all the way through to Cloud Run release",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q2_colloquial",
+      "query": "Let's do a complete build of the redirect resolver with all tests, ADRs, and gates passing",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q2_colloquial",
+      "query": "Drive the complete software delivery lifecycle from requirements to finished deployment artifacts",
+      "expect": "trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q2_colloquial",
+      "query": "Conduct the full engineering workflow from scratch for our new authentication service",
+      "expect": "trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q3_near_miss",
+      "query": "Conduct a code review of this PR diff and flag any style violations",
+      "expect": "no_trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q3_near_miss",
+      "query": "Conduct a security threat analysis and STRIDE review on docs/architecture.md",
+      "expect": "no_trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q3_near_miss",
+      "query": "Conduct a user intake interview to clarify new business requirements into a PRD",
+      "expect": "no_trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q3_near_miss",
+      "query": "Conduct performance load testing against our running staging cluster",
+      "expect": "no_trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q3_near_miss",
+      "query": "Conduct a test coverage audit of openapi.yaml to check for missing status codes",
+      "expect": "no_trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q4_adjacent",
+      "query": "Write the domain model and rule engine class for the billing subsystem",
+      "expect": "no_trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q4_adjacent",
+      "query": "Decompose the telemetry subsystem and write its openapi.yaml and SPEC.md",
+      "expect": "no_trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q4_adjacent",
+      "query": "Record a new ADR in docs/adr/ for selecting Google Cloud Spanner as primary database",
+      "expect": "no_trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q4_adjacent",
+      "query": "Scaffold the Terraform manifests and Cloud Run service definitions in deploy/",
+      "expect": "no_trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q4_adjacent",
+      "query": "Generate orthogonal contract tests in tests/contract/ from openapi.yaml",
+      "expect": "no_trigger",
+      "split": "val"
+    }
+  ]
+}

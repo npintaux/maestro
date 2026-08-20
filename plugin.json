@@ -1,0 +1,4 @@
+{
+  "name": "maestro",
+  "description": "Persona-driven Spec-Driven Development plugin for Antigravity. Enforces non-negotiable gates as mechanical scripts (exit non-zero on violation) rather than prose instructions, because under task pressure LLM subagents ignore prose. Ships skills, gate auditors, and a PreToolUse boundary guard."
+}

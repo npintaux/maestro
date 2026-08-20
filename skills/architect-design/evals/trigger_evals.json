@@ -1,0 +1,129 @@
+{
+  "skill": "architect-design",
+  "_help": "19 real queries across 4 quadrants with a 60/40 train/validation split.",
+  "queries": [
+    {
+      "quadrant": "Q1_direct",
+      "query": "design the GCP architecture for this project",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q1_direct",
+      "query": "/architect-design docs/PRD.md",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q1_direct",
+      "query": "create the macro-architecture and component topology diagram",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q1_direct",
+      "query": "perform Gate 0 architectural design and WAF alignment",
+      "expect": "trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q1_direct",
+      "query": "decompose this system into subsystem modules and GCP services",
+      "expect": "trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q2_colloquial",
+      "query": "here is our frozen PRD, now we need the cloud architecture and tech stack decisions",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q2_colloquial",
+      "query": "draw the system diagrams and map out how our microservices connect to Cloud SQL and Pub/Sub",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q2_colloquial",
+      "query": "help me design the backend topology on GCP following Well-Architected Framework guidelines",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q2_colloquial",
+      "query": "write the architecture.md specification for our engineering team",
+      "expect": "trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q2_colloquial",
+      "query": "set up our high-level architectural blueprint and module boundaries",
+      "expect": "trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q3_near_miss",
+      "query": "validate this draft PRD and interview me on missing requirements",
+      "expect": "no-trigger",
+      "split": "train",
+      "note": "intake validation task, handled by prd-validate"
+    },
+    {
+      "quadrant": "Q3_near_miss",
+      "query": "perform a STRIDE threat modeling security audit on architecture.md",
+      "expect": "no-trigger",
+      "split": "train",
+      "note": "security audit task, handled by secops-audit"
+    },
+    {
+      "quadrant": "Q3_near_miss",
+      "query": "write Python TDD unit tests for the invoice calculation module",
+      "expect": "no-trigger",
+      "split": "train",
+      "note": "code implementation task, handled by implement"
+    },
+    {
+      "quadrant": "Q3_near_miss",
+      "query": "sync PRD user stories to GitHub Issues with labels",
+      "expect": "no-trigger",
+      "split": "val",
+      "note": "backlog sync task, handled by prd-to-backlog"
+    },
+    {
+      "quadrant": "Q3_near_miss",
+      "query": "check directory boundary violations for the billing worker",
+      "expect": "no-trigger",
+      "split": "val",
+      "note": "boundary checking tool, handled by check_boundaries"
+    },
+    {
+      "quadrant": "Q4_sibling_adjacent",
+      "query": "author the OpenAPI yaml spec and SPEC.md for the billing subsystem",
+      "expect": "no-trigger",
+      "split": "train",
+      "note": "subsystem micro-design, handled by lead-decompose"
+    },
+    {
+      "quadrant": "Q4_sibling_adjacent",
+      "query": "audit our Python code with bandit and mypy",
+      "expect": "no-trigger",
+      "split": "train",
+      "note": "code review / gating task, handled by code-review and gate suite"
+    },
+    {
+      "quadrant": "Q4_sibling_adjacent",
+      "query": "stage and create a conventional commit message for issue #5",
+      "expect": "no-trigger",
+      "split": "val",
+      "note": "commit task, handled by commit"
+    },
+    {
+      "quadrant": "Q4_sibling_adjacent",
+      "query": "write integration tests verifying the order checkout API endpoint",
+      "expect": "no-trigger",
+      "split": "val",
+      "note": "test architecture task, handled by test-architect"
+    }
+  ]
+}

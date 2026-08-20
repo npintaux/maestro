@@ -1,0 +1,17 @@
+{
+  "boundary-guard": {
+    "enabled": true,
+    "PreToolUse": [
+      {
+        "matcher": "write_to_file|replace_file_content|multi_replace_file_content",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${MAESTRO_PLUGIN_DIR:-$HOME/.gemini/config/plugins/maestro}/scripts/hook_boundary_guard.py\"",
+            "timeout": 15
+          }
+        ]
+      }
+    ]
+  }
+}

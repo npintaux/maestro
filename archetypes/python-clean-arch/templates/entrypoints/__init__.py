@@ -1,0 +1,1 @@
+"""Entrypoints template package."""

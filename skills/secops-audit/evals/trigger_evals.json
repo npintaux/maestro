@@ -1,0 +1,126 @@
+{
+  "skill": "secops-audit",
+  "_help": "20 real queries across 4 quadrants with a 60/40 train/validation split.",
+  "queries": [
+    {
+      "quadrant": "Q1_direct",
+      "query": "/secops-audit evaluate threat model and IAM least privilege on docs/architecture.md",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q1_direct",
+      "query": "Conduct a STRIDE threat modeling audit on the system architecture and output docs/security.md",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q1_direct",
+      "query": "Perform a security audit of our GCP cloud architecture and verify Secret Manager isolation",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q1_direct",
+      "query": "Review the subsystem OpenAPI specs against OWASP API Top 10 security vulnerabilities",
+      "expect": "trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q1_direct",
+      "query": "Generate the IAM least-privilege service account matrix and cryptographic KMS policy for docs/security.md",
+      "expect": "trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q2_colloquial",
+      "query": "Put on your adversarial hat and find any security holes or permission leaks in our architecture",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q2_colloquial",
+      "query": "Check if our Cloud Run services are running with excessive IAM permissions or plain secrets",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q2_colloquial",
+      "query": "Audit the trust boundaries between the API gateway and backend Firestore datastores",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q2_colloquial",
+      "query": "Run a threat analysis on how an attacker could perform privilege escalation or spoofing here",
+      "expect": "trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q2_colloquial",
+      "query": "Make sure our secrets and encryption keys comply with envelope encryption standards",
+      "expect": "trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q3_near_miss",
+      "query": "Design the macro cloud topology on GCP with Cloud Run and Firestore",
+      "expect": "no-trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q3_near_miss",
+      "query": "Decompose the URL shortener architecture into openapi.yaml and SPEC.md",
+      "expect": "no-trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q3_near_miss",
+      "query": "Validate this PRD draft against Google Cloud WAF requirements",
+      "expect": "no-trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q3_near_miss",
+      "query": "Implement the ApplyDiscountStage pipeline component for checkout_service",
+      "expect": "no-trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q3_near_miss",
+      "query": "Author the black-box contract verification test suite for openapi.yaml",
+      "expect": "no-trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q4_sibling_adjacent",
+      "query": "/architect-design macro cloud topology for the URL shortener on GCP",
+      "expect": "no-trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q4_sibling_adjacent",
+      "query": "/lead-decompose shortener_api to create openapi.yaml and SPEC.md",
+      "expect": "no-trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q4_sibling_adjacent",
+      "query": "/prd-validate assess requirements and intake questions for url shortener",
+      "expect": "no-trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q4_sibling_adjacent",
+      "query": "/code-implement rule ValidateOriginalUrl for shortener_api using strict TDD",
+      "expect": "no-trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q4_sibling_adjacent",
+      "query": "/test-architect author contract verification and behavioral tests",
+      "expect": "no-trigger",
+      "split": "val"
+    }
+  ]
+}

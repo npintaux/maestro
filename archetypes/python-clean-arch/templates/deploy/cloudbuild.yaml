@@ -1,0 +1,59 @@
+# Google Cloud Build CI/CD pipeline for Cloud Run deployment
+steps:
+  # 1. Run strict linting and formatting verification
+  - name: 'ghcr.io/astral-sh/uv:latest'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        uv run ruff check src/ tests/
+        uv run ruff format --check src/ tests/
+
+  # 2. Run static type analysis (mypy --strict)
+  - name: 'ghcr.io/astral-sh/uv:latest'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - 'uv run mypy --strict src/'
+
+  # 3. Run unit and contract tests with 100% coverage requirement
+  - name: 'ghcr.io/astral-sh/uv:latest'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - 'uv run pytest tests/ --cov=src --cov-fail-under=100'
+
+  # 4. Build container image
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '-t'
+      - 'gcr.io/$PROJECT_ID/$_SERVICE_NAME:$COMMIT_SHA'
+      - '-f'
+      - 'Dockerfile'
+      - '.'
+
+  # 5. Push container image to Artifact Registry / Container Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'push'
+      - 'gcr.io/$PROJECT_ID/$_SERVICE_NAME:$COMMIT_SHA'
+
+  # 6. Deploy to Google Cloud Run (Fully Managed)
+  - name: 'gcr.io/google.com/cloudsdktool/cloud-sdk'
+    entrypoint: 'gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - '$_SERVICE_NAME'
+      - '--image=gcr.io/$PROJECT_ID/$_SERVICE_NAME:$COMMIT_SHA'
+      - '--region=$_REGION'
+      - '--platform=managed'
+      - '--allow-unauthenticated'
+
+substitutions:
+  _SERVICE_NAME: 'maestro-microservice'
+  _REGION: 'us-central1'
+
+options:
+  logging: CLOUD_LOGGING_ONLY

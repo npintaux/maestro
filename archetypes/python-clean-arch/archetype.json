@@ -1,0 +1,75 @@
+{
+  "id": "python-clean-arch",
+  "name": "Python 3.12+ Clean Architecture Governance Pack",
+  "version": "1.0.0",
+  "language": "python",
+  "minimum_python_version": "3.12",
+  "description": "Standardized Python governance archetype enforcing Clean Architecture, single-responsibility 1-class-per-file layout, Google-style docstrings, strict static typing, and 100% test coverage across 5 domain patterns.",
+  "commands": {
+    "lint": "uv run ruff check {target}",
+    "format": "uv run ruff format {target}",
+    "format_check": "uv run ruff format --check {target}",
+    "typecheck": "uv run mypy --strict {target}",
+    "test_unit": "uv run pytest tests/unit/ --cov={src_dir} --cov-report=term-missing --cov-fail-under=100",
+    "test_all": "uv run pytest tests/ --cov={src_dir} --cov-report=term-missing --cov-fail-under=100",
+    "audit_boundaries": "uv run python3 scripts/check_boundaries.py --subsystem {subsystem} --paths {paths}",
+    "audit_implementation": "uv run python3 scripts/audit_implementation.py {target}",
+    "audit_test_coverage": "uv run python3 scripts/audit_test_coverage.py {openapi_spec}",
+    "security_scan": "uv run bandit -r {src_dir}",
+    "dependency_audit": "uv run pip-audit"
+  },
+  "standards": {
+    "classes_per_file_max": 1,
+    "docstring_convention": "google",
+    "type_checking_mode": "strict",
+    "coverage_minimum_percent": 100,
+    "domain_purity_enforced": true,
+    "allowed_domain_imports": [
+      "abc",
+      "collections",
+      "dataclasses",
+      "datetime",
+      "decimal",
+      "enum",
+      "functools",
+      "itertools",
+      "math",
+      "pathlib",
+      "re",
+      "typing",
+      "uuid"
+    ]
+  },
+  "patterns": [
+    {
+      "id": "decision-list",
+      "name": "Decision List / Rules Engine",
+      "description": "Ordered predicate evaluation yielding explicit decisions (Rule ABC + Engine dispatcher).",
+      "template_dir": "templates/patterns/decision-list"
+    },
+    {
+      "id": "repository-service",
+      "name": "Repository-Service (CRUD / Query / Key-Value)",
+      "description": "Direct lookup and persistence through abstract repository port (Repository ABC + Service).",
+      "template_dir": "templates/patterns/repository-service"
+    },
+    {
+      "id": "state-machine",
+      "name": "Finite State Machine (FSM)",
+      "description": "Deterministic lifecycle and state transitions with guards and event handlers.",
+      "template_dir": "templates/patterns/state-machine"
+    },
+    {
+      "id": "pipeline-reducer",
+      "name": "Pipeline-Reducer / Streaming Transformation",
+      "description": "Multi-stage sequential or reducing data transformation pipeline (PipelineStage ABC + Runner).",
+      "template_dir": "templates/patterns/pipeline-reducer"
+    },
+    {
+      "id": "algorithmic-core",
+      "name": "Algorithmic-Core / Optimization Solver",
+      "description": "Isolated mathematical, heuristic, or algorithmic computation (Solver ABC / Strategy ABC).",
+      "template_dir": "templates/patterns/algorithmic-core"
+    }
+  ]
+}

@@ -1,0 +1,76 @@
+openapi: 3.0.3
+info:
+  title: "Subsystem Service API"
+  version: "1.0.0"
+  description: "Machine-readable OpenAPI contract for subsystem."
+paths:
+  /v1/resources:
+    post:
+      operationId: "createResource"
+      summary: "Create and process Resource"
+      description: "Executes domain business rules to process a new resource request."
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ResourceRequest"
+      responses:
+        "201":
+          description: "Resource successfully created"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResourceResponse"
+        "400":
+          description: "Invalid request payload"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "422":
+          description: "Business rule violation"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: "Internal server error"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+components:
+  schemas:
+    ResourceRequest:
+      type: object
+      required:
+        - entity_id
+        - amount_cents
+      properties:
+        entity_id:
+          type: string
+        amount_cents:
+          type: integer
+          minimum: 1
+    ResourceResponse:
+      type: object
+      required:
+        - resource_id
+        - status
+      properties:
+        resource_id:
+          type: string
+        status:
+          type: string
+    ErrorResponse:
+      type: object
+      required:
+        - code
+        - message
+      properties:
+        code:
+          type: string
+        message:
+          type: string

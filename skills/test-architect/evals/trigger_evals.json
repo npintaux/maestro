@@ -1,0 +1,120 @@
+{
+  "skill": "test-architect",
+  "_help": "19 real queries across 4 quadrants with a 60/40 train/validation split.",
+  "queries": [
+    {
+      "quadrant": "Q1_direct",
+      "query": "/test-architect author contract verification and behavioral acceptance tests for shortener_api",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q1_direct",
+      "query": "Write black-box OpenAPI contract tests for the redirect_resolver subsystem based on openapi.yaml",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q1_direct",
+      "query": "Generate behavioral acceptance tests from PRD user stories for our order processing module",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q1_direct",
+      "query": "Create an independent test suite in tests/contract/ to verify schema compliance and status codes",
+      "expect": "trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q1_direct",
+      "query": "Act as the independent test architect to build orthogonal test cases for the telemetry pipeline",
+      "expect": "trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q2_colloquial",
+      "query": "We need an outside verification suite to make sure our API actually meets the PRD acceptance criteria",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q2_colloquial",
+      "query": "Can you test our endpoints as a black box without looking at internal developer code?",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q2_colloquial",
+      "query": "Make sure all our HTTP error codes (400, 404, 409, 422, 500) match the openapi spec in tests",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q2_colloquial",
+      "query": "Write the acceptance tests for User Story 1 and User Story 2 before the dev starts coding",
+      "expect": "trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q2_colloquial",
+      "query": "Set up our contract test harness to ensure the backend doesn't break API schemas",
+      "expect": "trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q3_near_miss",
+      "query": "Write unit tests for the ValidateInputRule class using pytest and mock the repository",
+      "expect": "no-trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q3_near_miss",
+      "query": "Implement the Rule ABC subclasses and decision engine for shortener_api",
+      "expect": "no-trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q3_near_miss",
+      "query": "Run the gate suite to check if coverage is 100% and ruff passes",
+      "expect": "no-trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q3_near_miss",
+      "query": "Decompose the URL shortener architecture into openapi.yaml and SPEC.md",
+      "expect": "no-trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q3_near_miss",
+      "query": "Fix the failing assertion in test_engine.py after refactoring the dispatcher",
+      "expect": "no-trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q4_sibling_adjacent",
+      "query": "/implement R2 ApplyDiscountRule using strict TDD",
+      "expect": "no-trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q4_sibling_adjacent",
+      "query": "/lead-decompose shortener_api to create openapi.yaml and SPEC.md",
+      "expect": "no-trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q4_sibling_adjacent",
+      "query": "/architect-design macro cloud topology for the URL shortener on GCP",
+      "expect": "no-trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q4_sibling_adjacent",
+      "query": "/secops-audit evaluate threat model and IAM least privilege on architecture.md",
+      "expect": "no-trigger",
+      "split": "val"
+    }
+  ]
+}

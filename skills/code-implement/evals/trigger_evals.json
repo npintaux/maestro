@@ -1,0 +1,132 @@
+{
+  "skill": "code-implement",
+  "_help": "21 real queries across 4 quadrants with a 60/40 train/validation split.",
+  "queries": [
+    {
+      "quadrant": "Q1_direct",
+      "query": "/code-implement rule ValidateOriginalUrl for shortener_api using strict TDD",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q1_direct",
+      "query": "Implement the ApplyDiscountStage pipeline component for checkout_service according to SPEC.md",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q1_direct",
+      "query": "Write the state machine transition logic and unit tests for order_service in domain/state_machine.py",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q1_direct",
+      "query": "Synthesize the decision-list blueprint pattern into domain rules for billing_service",
+      "expect": "trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q1_direct",
+      "query": "Build the in-memory repository adapter in adapters/in_memory_repo.py using TDD",
+      "expect": "trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q1_direct",
+      "query": "Implement the FastAPI router in entrypoints/api.py to wire up the decision engine",
+      "expect": "trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q2_colloquial",
+      "query": "Let's code up the next rule from the spec and make sure pytest coverage is 100%",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q2_colloquial",
+      "query": "Write the failing unit test first, then implement the Dijkstra route solver class",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q2_colloquial",
+      "query": "Add the domain model dataclasses and custom exception classes for the redirect subsystem",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q2_colloquial",
+      "query": "Synthesize the state-machine pattern blueprint for order_service based on SPEC.md",
+      "expect": "trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q2_colloquial",
+      "query": "Build out the DecisionEngine dispatcher to evaluate all rules sequentially",
+      "expect": "trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q2_colloquial",
+      "query": "Create the Firestore repository adapter adhering to the Repository ABC port",
+      "expect": "trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q3_near_miss",
+      "query": "Author the black-box contract verification test suite for openapi.yaml",
+      "expect": "no-trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q3_near_miss",
+      "query": "Decompose the URL shortener architecture into openapi.yaml and SPEC.md",
+      "expect": "no-trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q3_near_miss",
+      "query": "Audit architecture.md for STRIDE threats and IAM least privilege",
+      "expect": "no-trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q3_near_miss",
+      "query": "Design the macro cloud topology on GCP with Cloud Run and Firestore",
+      "expect": "no-trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q3_near_miss",
+      "query": "Validate this PRD draft against Google Cloud WAF requirements",
+      "expect": "no-trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q4_sibling_adjacent",
+      "query": "/test-architect author contract verification and behavioral tests",
+      "expect": "no-trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q4_sibling_adjacent",
+      "query": "/lead-decompose shortener_api to create openapi.yaml and SPEC.md",
+      "expect": "no-trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q4_sibling_adjacent",
+      "query": "/architect-design macro cloud topology for the URL shortener on GCP",
+      "expect": "no-trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q4_sibling_adjacent",
+      "query": "/secops-audit evaluate threat model and IAM least privilege on architecture.md",
+      "expect": "no-trigger",
+      "split": "val"
+    }
+  ]
+}
