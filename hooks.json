@@ -13,5 +13,20 @@
         ]
       }
     ]
+  },
+  "git-gate": {
+    "enabled": true,
+    "PreToolUse": [
+      {
+        "matcher": "run_command",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${MAESTRO_PLUGIN_DIR:-$HOME/.gemini/config/plugins/maestro}/scripts/hook_git_gate.py\"",
+            "timeout": 15
+          }
+        ]
+      }
+    ]
   }
 }

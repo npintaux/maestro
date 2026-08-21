@@ -1,0 +1,129 @@
+{
+  "skill": "ship",
+  "_help": "19 real queries across 4 quadrants with a ~60/40 train/validation split. Near-misses steer away from commit_artifacts (docs freezes), /code-implement (fixing red gates), and hand-merging to main (which Maestro never does).",
+  "queries": [
+    {
+      "quadrant": "Q1_direct",
+      "query": "/ship",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q1_direct",
+      "query": "merge this subsystem branch into the integration branch",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q1_direct",
+      "query": "open the integration PR into main for human review",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q1_direct",
+      "query": "ship the redirect-resolver subsystem now that its gates are green",
+      "expect": "trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q1_direct",
+      "query": "raise the final integration to main pull request for the run",
+      "expect": "trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q2_colloquial",
+      "query": "this subsystem is done, land it on the integration branch",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q2_colloquial",
+      "query": "open a PR for the finished issue branch and merge it if everything's green",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q2_colloquial",
+      "query": "we're finished, put up the big PR so a human can merge to main",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q2_colloquial",
+      "query": "close out this subsystem by delivering its branch",
+      "expect": "trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q2_colloquial",
+      "query": "get this branch merged into integration once the proof passes",
+      "expect": "trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q3_near_miss",
+      "query": "freeze the PRD and commit it to the integration branch",
+      "expect": "no-trigger",
+      "split": "train",
+      "note": "docs freeze is commit_artifacts.py, not a PR/merge"
+    },
+    {
+      "quadrant": "Q3_near_miss",
+      "query": "the RED-lock gate is failing, fix the implementation",
+      "expect": "no-trigger",
+      "split": "train",
+      "note": "fixing a red gate is /code-implement; ship refuses to merge red"
+    },
+    {
+      "quadrant": "Q3_near_miss",
+      "query": "write a conventional commit message tagged with the issue number",
+      "expect": "no-trigger",
+      "split": "train",
+      "note": "commit message authoring, not opening/merging a PR"
+    },
+    {
+      "quadrant": "Q3_near_miss",
+      "query": "merge the integration branch into main for me",
+      "expect": "no-trigger",
+      "split": "val",
+      "note": "Maestro never merges to main; that is the human's merge"
+    },
+    {
+      "quadrant": "Q3_near_miss",
+      "query": "cut the subsystem worktrees from the integration branch",
+      "expect": "no-trigger",
+      "split": "val",
+      "note": "worktree_manager, not ship"
+    },
+    {
+      "quadrant": "Q4_sibling_adjacent",
+      "query": "sync the PRD user stories into GitHub issues",
+      "expect": "no-trigger",
+      "split": "train",
+      "note": "/prd-to-backlog"
+    },
+    {
+      "quadrant": "Q4_sibling_adjacent",
+      "query": "create the subsystem tracking issues from the traceability matrix",
+      "expect": "no-trigger",
+      "split": "train",
+      "note": "lead-decompose subsystem step"
+    },
+    {
+      "quadrant": "Q4_sibling_adjacent",
+      "query": "run the mechanical gate suite for this subsystem",
+      "expect": "no-trigger",
+      "split": "val",
+      "note": "gate_controller / run_gate_suite, not shipping"
+    },
+    {
+      "quadrant": "Q4_sibling_adjacent",
+      "query": "implement the link-store module against its frozen spec",
+      "expect": "no-trigger",
+      "split": "val",
+      "note": "/code-implement"
+    }
+  ]
+}

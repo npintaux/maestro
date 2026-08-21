@@ -1,0 +1,132 @@
+{
+  "skill": "ux-design",
+  "_help": "21 real queries across 4 quadrants with a train/validation split. Near-miss quadrant discriminates the designer (freeze the contract) from the front-end implementer (build the UI).",
+  "queries": [
+    {
+      "quadrant": "Q1_direct",
+      "query": "/ux-design author and freeze the ui-spec.json for checkout_service",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q1_direct",
+      "query": "Freeze the UI contract for cart_service: token-only screens, WCAG AA contrast, and a complete navigation FSM",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q1_direct",
+      "query": "Add design tokens and extend the component whitelist in the storefront design system",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q1_direct",
+      "query": "Import this Claude Design export .zip and map its colors and fonts against our design tokens",
+      "expect": "trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q1_direct",
+      "query": "Author the ui-spec.json screens with per-screen PRD user-story traceability for account_service",
+      "expect": "trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q1_direct",
+      "query": "Run gate-ui: validate the frozen ui-spec against WCAG contrast thresholds and the token set",
+      "expect": "trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q2_colloquial",
+      "query": "Let's design the UI contract for the dashboard before anyone writes UI code",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q2_colloquial",
+      "query": "Set up the design tokens and accessibility rules so every text color meets AA contrast",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q2_colloquial",
+      "query": "Map out the screens and navigation flow for the onboarding subsystem as a frozen spec",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q2_colloquial",
+      "query": "I have a Claude Design zip — turn it into a conformance checklist against our brand tokens",
+      "expect": "trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q2_colloquial",
+      "query": "Decide which components are allowed and freeze the screen-to-user-story mapping",
+      "expect": "trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q2_colloquial",
+      "query": "Nail down the token-only UI spec and make sure every screen is reachable from the initial screen",
+      "expect": "trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q3_near_miss",
+      "query": "Build the Flask app and Jinja templates from the frozen ui-spec.json",
+      "expect": "no-trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q3_near_miss",
+      "query": "Generate tokens.css and wire url_for navigation for the checkout screens",
+      "expect": "no-trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q3_near_miss",
+      "query": "Implement the domain rules and adapters for billing_service using strict TDD",
+      "expect": "no-trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q3_near_miss",
+      "query": "Draft the openapi.yaml contract and select a domain pattern for order_service",
+      "expect": "no-trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q3_near_miss",
+      "query": "Validate the PRD draft against the Google Cloud WAF pillars and freeze docs/PRD.md",
+      "expect": "no-trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q4_sibling_adjacent",
+      "query": "/frontend-implement build the Flask front-end from the frozen ui-spec.json",
+      "expect": "no-trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q4_sibling_adjacent",
+      "query": "/code-implement synthesize the state-machine pattern for order_service",
+      "expect": "no-trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q4_sibling_adjacent",
+      "query": "/lead-decompose author openapi.yaml and seed SPEC.md for cart_service",
+      "expect": "no-trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q4_sibling_adjacent",
+      "query": "/secops-audit run STRIDE threat modeling on architecture.md",
+      "expect": "no-trigger",
+      "split": "val"
+    }
+  ]
+}

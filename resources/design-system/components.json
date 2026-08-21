@@ -1,0 +1,23 @@
+{
+  "schema": "maestro/component-whitelist@1",
+  "description": "Allowed UI component primitives. A ui-spec screen may only compose components listed here; the validator denies any ad-hoc component. Projects extend this list in a project-local design-system directory.",
+  "components": [
+    "AppBar",
+    "NavRail",
+    "Button",
+    "IconButton",
+    "TextField",
+    "Select",
+    "Checkbox",
+    "Card",
+    "List",
+    "ListItem",
+    "Text",
+    "Heading",
+    "Icon",
+    "Image",
+    "Badge",
+    "Dialog",
+    "Spinner"
+  ]
+}

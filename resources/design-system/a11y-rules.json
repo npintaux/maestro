@@ -1,0 +1,8 @@
+{
+  "schema": "maestro/a11y-rules@1",
+  "description": "Accessibility thresholds enforced mechanically against every text style in a ui-spec. Contrast ratios follow WCAG 2.1: normal text must meet AA (4.5:1), large text (>=18pt, or >=14pt bold) may meet 3.0:1.",
+  "contrast": {
+    "normal-text": 4.5,
+    "large-text": 3.0
+  }
+}

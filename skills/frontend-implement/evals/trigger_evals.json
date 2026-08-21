@@ -1,0 +1,132 @@
+{
+  "skill": "frontend-implement",
+  "_help": "21 real queries across 4 quadrants with a train/validation split. Near-miss quadrant discriminates the front-end implementer (build the UI) from the designer (freeze the contract).",
+  "queries": [
+    {
+      "quadrant": "Q1_direct",
+      "query": "/frontend-implement build the Flask front-end for checkout_service from the frozen ui-spec.json",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q1_direct",
+      "query": "Materialize the Jinja screen templates and Flask routes from ui-spec.json with url_for navigation",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q1_direct",
+      "query": "Generate tokens.css from the design system and build the token-only CSS for cart_service",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q1_direct",
+      "query": "Implement the web UI: one route per screen with the endpoint name matching each screen id",
+      "expect": "trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q1_direct",
+      "query": "Wire the screen navigation with url_for and make gate-frontend pass for account_service",
+      "expect": "trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q1_direct",
+      "query": "Build the server-rendered HTML front-end and write Flask test-client tests to 100% coverage",
+      "expect": "trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q2_colloquial",
+      "query": "The ui-spec is frozen — let's actually build the web pages now",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q2_colloquial",
+      "query": "Create the Flask routes and HTML templates for each screen in the contract",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q2_colloquial",
+      "query": "Turn the Stitch draft into conformant templates using only our design tokens",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q2_colloquial",
+      "query": "Now code up the front-end so every screen and nav link matches the frozen spec",
+      "expect": "trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q2_colloquial",
+      "query": "Set up the base layout, per-screen templates, and generated token CSS for the storefront",
+      "expect": "trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q2_colloquial",
+      "query": "Build the UI and get gate-frontend green for the onboarding subsystem",
+      "expect": "trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q3_near_miss",
+      "query": "Author and freeze the ui-spec.json contract for checkout_service",
+      "expect": "no-trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q3_near_miss",
+      "query": "Define the design tokens, component whitelist, and WCAG contrast rules for the design system",
+      "expect": "no-trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q3_near_miss",
+      "query": "Import a Claude Design export .zip and map it against the design system",
+      "expect": "no-trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q3_near_miss",
+      "query": "Implement the domain solver and repository adapters for routing_service using TDD",
+      "expect": "no-trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q3_near_miss",
+      "query": "Draft openapi.yaml and pick a domain pattern for billing_service",
+      "expect": "no-trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q4_sibling_adjacent",
+      "query": "/ux-design freeze the token-only ui-spec.json and design system",
+      "expect": "no-trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q4_sibling_adjacent",
+      "query": "/code-implement build the in-memory repository adapter using strict TDD",
+      "expect": "no-trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q4_sibling_adjacent",
+      "query": "/lead-decompose micro-decompose cart_service into openapi.yaml and SPEC.md",
+      "expect": "no-trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q4_sibling_adjacent",
+      "query": "/architect-design the macro GCP cloud topology for the platform",
+      "expect": "no-trigger",
+      "split": "val"
+    }
+  ]
+}

@@ -1,0 +1,125 @@
+{
+  "skill": "prd-to-backlog",
+  "_help": "19 real queries across 4 quadrants with a ~60/40 train/validation split. Near-misses steer away from the sibling engineering-axis skill (/lead-decompose creates type:subsystem issues) and the intake skill (/prd-validate).",
+  "queries": [
+    {
+      "quadrant": "Q1_direct",
+      "query": "/prd-to-backlog",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q1_direct",
+      "query": "sync the PRD user stories to GitHub issues",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q1_direct",
+      "query": "create the type:story backlog from docs/PRD.md",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q1_direct",
+      "query": "reconcile the GitHub backlog after the PRD changed",
+      "expect": "trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q1_direct",
+      "query": "populate the backlog from the frozen requirements",
+      "expect": "trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q2_colloquial",
+      "query": "the PRD is done, can you turn its stories into GitHub tickets?",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q2_colloquial",
+      "query": "we updated a couple of user stories in the PRD, update the issues without making duplicates",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q2_colloquial",
+      "query": "get the product backlog into GitHub as draft issues for the PO to review",
+      "expect": "trigger",
+      "split": "train"
+    },
+    {
+      "quadrant": "Q2_colloquial",
+      "query": "make sure every user story in the PRD has a matching GitHub issue",
+      "expect": "trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q2_colloquial",
+      "query": "push the stories from requirements into the tracker as a starting backlog",
+      "expect": "trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q3_near_miss",
+      "query": "create the subsystem tracking issues from the traceability matrix",
+      "expect": "no-trigger",
+      "split": "train",
+      "note": "engineering axis (type:subsystem) — that is the /lead-decompose subsystem step, not the PO backlog"
+    },
+    {
+      "quadrant": "Q3_near_miss",
+      "query": "validate this draft PRD and freeze it",
+      "expect": "no-trigger",
+      "split": "train",
+      "note": "PRD intake/authoring is /prd-validate; backlog sync consumes an already-frozen PRD"
+    },
+    {
+      "quadrant": "Q3_near_miss",
+      "query": "write a python script to reconcile GitHub issues via the gh CLI",
+      "expect": "no-trigger",
+      "split": "train",
+      "note": "tooling implementation task, not running the PO backlog sync"
+    },
+    {
+      "quadrant": "Q3_near_miss",
+      "query": "open a pull request and merge the completed subsystem branch",
+      "expect": "no-trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q3_near_miss",
+      "query": "break the architecture into subsystems and author their SPEC.md contracts",
+      "expect": "no-trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q4_sibling_adjacent",
+      "query": "decompose the system and assign subsystem ownership to tech leads",
+      "expect": "no-trigger",
+      "split": "train",
+      "note": "/lead-decompose"
+    },
+    {
+      "quadrant": "Q4_sibling_adjacent",
+      "query": "write the failing test suites from the acceptance criteria",
+      "expect": "no-trigger",
+      "split": "train",
+      "note": "/test-architect"
+    },
+    {
+      "quadrant": "Q4_sibling_adjacent",
+      "query": "run the STRIDE security audit on the proposed architecture",
+      "expect": "no-trigger",
+      "split": "val"
+    },
+    {
+      "quadrant": "Q4_sibling_adjacent",
+      "query": "implement the redirect_resolver module against its frozen spec",
+      "expect": "no-trigger",
+      "split": "val"
+    }
+  ]
+}

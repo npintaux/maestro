@@ -65,61 +65,61 @@
     {
       "quadrant": "Q3_near_miss",
       "query": "Conduct a code review of this PR diff and flag any style violations",
-      "expect": "no_trigger",
+      "expect": "no-trigger",
       "split": "train"
     },
     {
       "quadrant": "Q3_near_miss",
       "query": "Conduct a security threat analysis and STRIDE review on docs/architecture.md",
-      "expect": "no_trigger",
+      "expect": "no-trigger",
       "split": "train"
     },
     {
       "quadrant": "Q3_near_miss",
       "query": "Conduct a user intake interview to clarify new business requirements into a PRD",
-      "expect": "no_trigger",
+      "expect": "no-trigger",
       "split": "train"
     },
     {
       "quadrant": "Q3_near_miss",
       "query": "Conduct performance load testing against our running staging cluster",
-      "expect": "no_trigger",
+      "expect": "no-trigger",
       "split": "val"
     },
     {
       "quadrant": "Q3_near_miss",
       "query": "Conduct a test coverage audit of openapi.yaml to check for missing status codes",
-      "expect": "no_trigger",
+      "expect": "no-trigger",
       "split": "val"
     },
     {
-      "quadrant": "Q4_adjacent",
+      "quadrant": "Q4_sibling_adjacent",
       "query": "Write the domain model and rule engine class for the billing subsystem",
-      "expect": "no_trigger",
+      "expect": "no-trigger",
       "split": "train"
     },
     {
-      "quadrant": "Q4_adjacent",
+      "quadrant": "Q4_sibling_adjacent",
       "query": "Decompose the telemetry subsystem and write its openapi.yaml and SPEC.md",
-      "expect": "no_trigger",
+      "expect": "no-trigger",
       "split": "train"
     },
     {
-      "quadrant": "Q4_adjacent",
+      "quadrant": "Q4_sibling_adjacent",
       "query": "Record a new ADR in docs/adr/ for selecting Google Cloud Spanner as primary database",
-      "expect": "no_trigger",
+      "expect": "no-trigger",
       "split": "train"
     },
     {
-      "quadrant": "Q4_adjacent",
+      "quadrant": "Q4_sibling_adjacent",
       "query": "Scaffold the Terraform manifests and Cloud Run service definitions in deploy/",
-      "expect": "no_trigger",
+      "expect": "no-trigger",
       "split": "val"
     },
     {
-      "quadrant": "Q4_adjacent",
+      "quadrant": "Q4_sibling_adjacent",
       "query": "Generate orthogonal contract tests in tests/contract/ from openapi.yaml",
-      "expect": "no_trigger",
+      "expect": "no-trigger",
       "split": "val"
     }
   ]
