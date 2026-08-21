@@ -5,10 +5,17 @@ Independent Test Architect (`/test-architect`) is required to author, so the gat
 passed with a single happy-path test:
 
 * Every HTTP status code documented in `openapi.yaml` is asserted by the contract test suite.
-* Every PRD User Story the subsystem claims (via `SPEC.md`) is referenced by the behavioral suite.
-* Every User Story claimed in `SPEC.md` actually exists in `docs/PRD.md` (traceability).
+* Every PRD User Story the subsystem must satisfy is referenced by the behavioral suite.
 * The black-box isolation invariant holds: test suites never import the subsystem's private
   `domain/` or `adapters/` packages.
+
+The set of User Stories a subsystem must satisfy is read from `docs/traceability.md` (the
+architect-owned, Gate-0.5 matrix mapping each `US-N` to its subsystem(s)) — **not** from the
+subsystem's `SPEC.md`. Under the implementer-owned-SPEC model (Regime B) `SPEC.md` is a living
+design document the implementer edits as code progresses, so it cannot be the source of the bar
+the implementer is graded against; if it were, an implementer could drop a `US-N` line and
+silently lower its own coverage requirement. Sourcing the bar from the frozen, upstream
+traceability matrix keeps the coverage contract non-implementer-owned.
 
 This complements `scripts/validate_contract.py` (which proves the contract is well-formed) by
 proving the contract is independently verified.
@@ -25,6 +32,15 @@ from dataclasses import asdict, dataclass, field
 from pathlib import Path
 
 import yaml
+
+# Reuse the traceability matrix parser so the coverage gate and the traceability gate cannot
+# disagree about which stories a subsystem must serve. Fall back to a path bootstrap for direct
+# ``python3 scripts/audit_test_coverage.py`` invocation (where ``scripts`` is not yet a package).
+try:
+    from scripts.audit_traceability import _parse_matrix
+except ImportError:  # pragma: no cover - direct-invocation bootstrap
+    sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+    from scripts.audit_traceability import _parse_matrix
 
 # A response key such as "200"/"404"/"500"; "default" and non-numeric keys are ignored.
 STATUS_CODE_KEY_PATTERN = re.compile(r"^\d{3}$")
@@ -99,6 +115,19 @@ def _story_ids(text: str) -> set[str]:
     return {match.upper() for match in STORY_ID_PATTERN.findall(text)}
 
 
+def _required_story_ids(traceability_text: str, subsystem: str) -> set[str]:
+    """Return the User Stories the traceability matrix maps to ``subsystem``.
+
+    This is the coverage contract of record: the architect-owned matrix says which PRD stories
+    a subsystem must realize, so the bar is immune to edits of the implementer-owned SPEC.md.
+    """
+    if not subsystem:
+        return set()
+    return {
+        story for story, subs in _parse_matrix(traceability_text).items() if subsystem in subs
+    }
+
+
 def _forbidden_domain_imports(text: str, subsystem: str) -> list[str]:
     """Return import lines that reach into the subsystem's private domain/adapters packages."""
     if not subsystem:
@@ -110,7 +139,7 @@ def _forbidden_domain_imports(text: str, subsystem: str) -> list[str]:
 def audit_test_coverage(
     *,
     openapi_text: str,
-    spec_text: str,
+    traceability_text: str,
     contract_test_text: str,
     behavioral_test_text: str,
     prd_text: str,
@@ -123,11 +152,13 @@ def audit_test_coverage(
 
     Args:
         openapi_text: Raw text of the subsystem openapi.yaml.
-        spec_text: Raw text of the subsystem SPEC.md (declares the claimed User Stories).
+        traceability_text: Raw text of docs/traceability.md (maps each US-N to its subsystem(s));
+            the source of the User Stories this subsystem must cover.
         contract_test_text: Raw text of the contract test suite.
         behavioral_test_text: Raw text of the behavioral test suite.
         prd_text: Raw text of docs/PRD.md (the universe of User Stories).
-        subsystem: Subsystem identifier, used for isolation checks and messages.
+        subsystem: Subsystem identifier; selects the subsystem's row(s) from the matrix and is
+            used for isolation checks and messages.
         file_path: Source openapi path for reporting.
         contract_path: Contract test path for reporting.
         behavioral_path: Behavioral test path for reporting.
@@ -153,21 +184,24 @@ def audit_test_coverage(
         )
 
     prd_ids = _story_ids(prd_text)
-    claimed_ids = _story_ids(spec_text)
+    claimed_ids = _required_story_ids(traceability_text, subsystem)
     referenced_ids = _story_ids(behavioral_test_text)
     covered_ids = claimed_ids & referenced_ids
 
     for story in sorted(claimed_ids - prd_ids):
         violations.append(
-            f"SPEC.md claims '{story}' but that User Story is not defined in docs/PRD.md."
+            f"docs/traceability.md maps '{story}' to subsystem '{subsystem}', "
+            "but that User Story is not defined in docs/PRD.md."
         )
     for story in sorted(claimed_ids - referenced_ids):
         violations.append(
-            f"SPEC.md claims '{story}' but no behavioral test references it (missing traceability)."
+            f"docs/traceability.md maps '{story}' to subsystem '{subsystem}', "
+            "but no behavioral test references it (missing traceability)."
         )
     if not claimed_ids:
         violations.append(
-            "SPEC.md declares no PRD User Stories (US-N); cannot verify behavioral coverage."
+            f"docs/traceability.md maps no PRD User Stories (US-N) to subsystem '{subsystem}'; "
+            "cannot verify behavioral coverage (did the traceability gate pass first?)."
         )
 
     for offending in _forbidden_domain_imports(contract_test_text, subsystem):
@@ -205,16 +239,19 @@ def audit_subsystem_tests(
     openapi_path: str | Path,
     *,
     prd_path: str | Path | None = None,
+    traceability_path: str | Path | None = None,
 ) -> CoverageAuditReport:
     """Audit test coverage for the subsystem owning ``openapi_path``.
 
     The subsystem name is the parent directory of ``openapi.yaml``, and the repository root is
-    inferred from the canonical ``<root>/src/modules/<subsystem>/openapi.yaml`` layout. Test and
-    PRD locations follow the Test Architect's conventional directory structure.
+    inferred from the canonical ``<root>/src/modules/<subsystem>/openapi.yaml`` layout. Test,
+    PRD, and traceability locations follow the conventional repository structure.
 
     Args:
         openapi_path: Path to the subsystem's openapi.yaml.
         prd_path: Optional override for the PRD location (defaults to ``<root>/docs/PRD.md``).
+        traceability_path: Optional override for the traceability matrix location (defaults to
+            ``<root>/docs/traceability.md``).
 
     Returns:
         CoverageAuditReport.
@@ -223,14 +260,18 @@ def audit_subsystem_tests(
     subsystem = path.parent.name
     root = path.resolve().parents[3]
 
-    spec_file = path.parent / "SPEC.md"
     contract_file = root / "tests" / "contract" / subsystem / f"test_contract_{subsystem}.py"
     behavioral_file = root / "tests" / "behavioral" / subsystem / f"test_behavioral_{subsystem}.py"
     prd_file = Path(prd_path) if prd_path is not None else root / "docs" / "PRD.md"
+    traceability_file = (
+        Path(traceability_path)
+        if traceability_path is not None
+        else root / "docs" / "traceability.md"
+    )
 
     return audit_test_coverage(
         openapi_text=_safe_read(path),
-        spec_text=_safe_read(spec_file),
+        traceability_text=_safe_read(traceability_file),
         contract_test_text=_safe_read(contract_file),
         behavioral_test_text=_safe_read(behavioral_file),
         prd_text=_safe_read(prd_file),
@@ -258,10 +299,17 @@ def main(argv: Sequence[str] | None = None) -> int:
         default=None,
         help="Override path to docs/PRD.md (defaults to the inferred repository root).",
     )
+    parser.add_argument(
+        "--traceability",
+        default=None,
+        help="Override path to docs/traceability.md (defaults to the inferred repository root).",
+    )
 
     args = parser.parse_args(argv)
 
-    report = audit_subsystem_tests(args.file, prd_path=args.prd)
+    report = audit_subsystem_tests(
+        args.file, prd_path=args.prd, traceability_path=args.traceability
+    )
     print(json.dumps(report.to_dict(), indent=2))
 
     if not report.is_valid:

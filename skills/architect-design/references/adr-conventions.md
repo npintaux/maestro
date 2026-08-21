@@ -31,4 +31,4 @@ Every ADR must include:
    - All proposed/accepted ADRs must be syntactically valid and trace to the *Frozen Cloud Service Decisions* table in `architecture.md`.
 2. **Gate 0.5 (Human Sign-Off Checkpoint)**:
    - Run `python3 scripts/validate_adrs.py docs/adr/ --require-approval`
-   - Before Gate 1 (Tier-2 Micro-Decomposition) unlocks, all active ADRs must have `Status: accepted` and a valid `Approved-by:` sign-off token.
+   - Before Gate 2 (Tier-2 Micro-Decomposition) unlocks, all active ADRs must have `Status: accepted` and a valid `Approved-by:` sign-off token.

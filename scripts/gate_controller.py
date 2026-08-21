@@ -34,6 +34,8 @@ PHASE_DEPENDENCIES: dict[str, list[str]] = {
     "gate-0.5": ["gate-adversarial"],
     "gate-1": ["gate-0.5"],
     "gate-security": ["gate-0.5"],
+    "gate-ui": ["gate-0.5"],
+    "gate-frontend": ["gate-ui"],
     "gate-2": ["gate-1", "gate-security"],
     "gate-3": ["gate-2"],
     "gate-4": ["gate-3"],
@@ -252,7 +254,10 @@ def main(argv: Sequence[str] | None = None) -> int:
     run_parser = subparsers.add_parser("run", help="Run a gate stage through the controller")
     run_parser.add_argument(
         "stage",
-        help="Stage to execute (gate-0, gate-0.5, gate-1, gate-security, gate-2..4, all)",
+        help=(
+            "Stage to execute (gate-0, gate-0.5, gate-1, gate-security, gate-ui, "
+            "gate-frontend, gate-2..4, all)"
+        ),
     )
     run_parser.add_argument(
         "--subsystem",

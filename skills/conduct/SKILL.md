@@ -45,6 +45,67 @@ Consult `references/orchestration-state-machine.md` for the complete transition 
 
 ---
 
+## Version-Control Spine (git/GitHub wiring)
+
+Every gate-pass transition also fires a **git action**, run mechanically by a Maestro script that
+*refuses* on violation — never by prose the model is trusted to obey. GitHub is reached through the
+`gh` CLI (the Antigravity `permissioned-github` contract), never a raw API. The full rationale is
+in `docs/version-control-plan.md`; the wiring is below and in
+`references/orchestration-state-machine.md` §5.
+
+**Branch topology (single source of truth: `scripts/hook_git_gate.py`):**
+- `main` / `master` — protected. Agents **never** commit or push here; the git-gate hook denies it,
+  and each script re-enforces the rule itself (a subprocess `git commit` is not hook-intercepted).
+- `maestro/<prd-slug>` — the **per-run integration branch**, cut from `main` at start. All
+  pre-parallel artifacts and the locked RED suite are committed here first.
+- `issue/<n>-<slug>` — one **subsystem branch**, checked out in its own worktree under
+  `.maestro/worktrees/<subsystem>/`, cut from the integration branch after the RED suite is locked.
+
+| Transition (gate pass) | Git action | Script |
+|---|---|---|
+| `/conduct` start | preflight, then cut `maestro/<slug>` from `main` | `preflight.py`; `git switch -c maestro/<slug> main` |
+| Phase 0 → Gate 0 (PRD frozen) | commit `docs/PRD.md`; sync **story** issues from the PRD | `commit_artifacts.py prd`; `prd_backlog_sync.py` |
+| Phase 1 → Gate 0.5 (arch frozen, HITL) | commit ADRs/arch/security/traceability; gate the matrix; create **subsystem** issues | `commit_artifacts.py architecture`; `audit_traceability.py`; `create_subsystem_issues.py` |
+| Phase 2 → Gate 2 (per subsystem) | commit `SPEC.md` + `openapi.yaml` on integration | `commit_artifacts.py spec --subsystem <name> --issue <n>` |
+| Phase 2 → Gate UI (per **UI** subsystem, optional) | freeze `ui-spec.json` on integration | `commit_artifacts.py ui-spec --subsystem <name> --issue <n>` |
+| Phase 3 RED-lock (per subsystem) | freeze the **locked** orthogonal suite on integration | `verify_red_suite.py lock …`; `commit_artifacts.py tests --subsystem <name>` |
+| Phase 3 → Phase 4 boundary | cut one `issue/<n>-<slug>` worktree per subsystem | `worktree_manager.py create` |
+| Phase 4 (per subsystem, gates green) | open + **machine-merge** subsystem PR → integration | `ship_pr.py subsystem --integration maestro/<slug>` |
+| End of run | open **integration → main** PR (human merges); tear down worktrees | `ship_pr.py integration …`; `worktree_manager.py teardown` |
+
+**Spine invariants:**
+- **Numbers before branches.** Subsystem issues are created (Gate 0.5→Phase 2) *before* any
+  `issue/<n>-<slug>` branch or worktree exists — the issue number *is* the branch name.
+- **Lock before parallel.** Worktrees are cut only *after* every subsystem's RED suite is locked
+  **and committed** on integration, so each worktree inherits the identical frozen oracle.
+- **Machine-merge on green, human-merge to main.** Subsystem PRs are squash-merged by the script
+  only on a fresh green proof; the single `integration → main` PR is opened and left for the human.
+- **The UI track is optional and per-subsystem.** A subsystem gets a UI *only* if the architecture
+  says so. UI subsystems freeze `ui-spec.json` at Gate UI (Phase 2) and build a front-end at Phase 4;
+  backend-only subsystems dispatch no UI persona, run no `gate-ui`/`gate-frontend`, and freeze no
+  `ui-spec.json`. The front-end ships inside the **same** subsystem PR — `ship_pr.py` auto-appends
+  `gate-frontend` to the proof when `src/modules/<sub>/frontend/` exists, and skips it otherwise.
+- **Every git action has a `--dry-run`.** Dry-run → present the plan → apply.
+
+---
+
+### Run Start: Preflight & Integration Branch (before Phase 0)
+1. Run the environment preflight — the run **aborts** on any non-zero exit:
+   ```bash
+   uv run python3 "${MAESTRO_PLUGIN_DIR:-$HOME/.gemini/config/plugins/maestro}/scripts/preflight.py"
+   ```
+   It verifies: a git worktree, an HTTPS `origin` remote, `gh auth`, default branch `main`, and
+   **`main` branch protection** (the last is what makes the human-merge gate real).
+2. Derive the run slug `<prd-slug>` (kebab-case, matching `^maestro/[a-z0-9][a-z0-9._-]*$`) from the
+   project/PRD title, and cut the per-run integration branch from `main`:
+   ```bash
+   git switch -c "maestro/<prd-slug>" main
+   ```
+   All subsequent commits land here; `main` is never touched by an agent. Every artifact commit and
+   ship command below takes `--integration maestro/<prd-slug>`.
+
+---
+
 ### Phase 0: Product Intake & Requirements Gate
 1. Invoke the **Product Owner** persona (`/prd-validate`) via `invoke_subagent` (Template 1, `TypeName: "self"`).
 2. Produce `docs/PRD.md` with:
@@ -52,6 +113,15 @@ Consult `references/orchestration-state-machine.md` for the complete transition 
    - Non-Functional Requirements covering all 7 GCP WAF pillars (Security, Reliability, Cost, Ops, Perf, Scale, Sustainability)
    - Zero unresolved placeholders (`<...>`, `TODO`, `TBD`).
 3. Verify `docs/PRD.md` exists and is non-empty before advancing.
+4. **Git action (Gate 0 pass — PRD frozen):** commit the PRD, then reconcile the PRD's user
+   stories into GitHub `type:story` issues (dry-run first, then apply):
+   ```bash
+   uv run python3 "${MAESTRO_PLUGIN_DIR:-$HOME/.gemini/config/plugins/maestro}/scripts/commit_artifacts.py" prd
+   uv run python3 "${MAESTRO_PLUGIN_DIR:-$HOME/.gemini/config/plugins/maestro}/scripts/prd_backlog_sync.py" --dry-run
+   uv run python3 "${MAESTRO_PLUGIN_DIR:-$HOME/.gemini/config/plugins/maestro}/scripts/prd_backlog_sync.py"
+   ```
+   Story issues are created as `status:draft`; the PO owns publishing. This is the same engine the
+   `/prd-to-backlog` skill drives.
 
 ---
 
@@ -92,6 +162,19 @@ Consult `references/orchestration-state-machine.md` for the complete transition 
    uv run python3 "${MAESTRO_PLUGIN_DIR:-$HOME/.gemini/config/plugins/maestro}/scripts/gate_controller.py" run gate-0.5
    ```
 5. Advancement is strictly blocked until this command exits `0`.
+6. **Git action (Gate 0.5 pass — architecture frozen):** commit the architecture artifacts (ADRs,
+   `architecture.md`, `security.md`, `traceability.md`), gate the story↔subsystem matrix, then
+   create the `type:subsystem` tracking issues — **their numbers must exist before any subsystem
+   branch is cut**:
+   ```bash
+   uv run python3 "${MAESTRO_PLUGIN_DIR:-$HOME/.gemini/config/plugins/maestro}/scripts/commit_artifacts.py" architecture
+   uv run python3 "${MAESTRO_PLUGIN_DIR:-$HOME/.gemini/config/plugins/maestro}/scripts/audit_traceability.py"
+   uv run python3 "${MAESTRO_PLUGIN_DIR:-$HOME/.gemini/config/plugins/maestro}/scripts/create_subsystem_issues.py" --dry-run
+   uv run python3 "${MAESTRO_PLUGIN_DIR:-$HOME/.gemini/config/plugins/maestro}/scripts/create_subsystem_issues.py"
+   ```
+   `audit_traceability.py` bites on orphaned stories / speculative subsystems and must exit `0`
+   before subsystem issues are created. **Capture the subsystem→issue-number map** from the
+   `create_subsystem_issues.py` JSON — Phase 2 (`--issue`) and Phase 3 (worktree spec) both need it.
 
 ---
 
@@ -100,12 +183,40 @@ For each subsystem identified in `docs/architecture.md` (e.g. `src/modules/<subs
 1. Invoke the **Subsystem Tech Lead** persona (`/lead-decompose`) via `invoke_subagent` using Template 4 (`TypeName: "self"`).
 2. Produce:
    - `src/modules/<subsystem>/openapi.yaml` (complete OpenAPI 3.x contract)
-   - `src/modules/<subsystem>/SPEC.md` (domain pattern selection and class structure)
+   - `src/modules/<subsystem>/SPEC.md` (domain pattern selection and class structure — *seeded* here by the Tech Lead, then maintained by the implementer as a living design doc)
 3. Execute the mechanical contract gate:
    ```bash
    uv run python3 "${MAESTRO_PLUGIN_DIR:-$HOME/.gemini/config/plugins/maestro}/scripts/gate_controller.py" run gate-2 --subsystem <subsystem>
    ```
 4. Advancement to Phase 3 is blocked until this command exits `0`.
+5. **Git action (Gate 2 pass, per subsystem):** commit the frozen contract on the integration
+   branch, tagged with the subsystem's issue number:
+   ```bash
+   uv run python3 "${MAESTRO_PLUGIN_DIR:-$HOME/.gemini/config/plugins/maestro}/scripts/commit_artifacts.py" spec --subsystem <subsystem> --issue <n>
+   ```
+
+#### Phase 2 (UI track — only for subsystems with a user interface)
+Skip this entire block for backend-only subsystems (no screens in the architecture → no UI persona,
+no `gate-ui`, no `ui-spec.json`). For a subsystem that **does** present a UI:
+
+6. Invoke the **UX Designer** persona (`/ux-design`) via `invoke_subagent` using Template 8
+   (`TypeName: "self"`). It authors and freezes the **UI contract** — it writes *no* UI code:
+   - `src/modules/<subsystem>/ui-spec.json` (token-only screens, a complete navigation FSM, and
+     per-screen PRD user-story traceability)
+   - the project-owned design system under `design-system/` (design tokens, component whitelist,
+     WCAG AA contrast rules). Tokens come only from here — never from an MCP draft.
+7. Execute the mechanical UI-contract gate (optional/parallel — **not** a prerequisite of gate-2/3/4,
+   so it never blocks a backend-only subsystem):
+   ```bash
+   uv run python3 "${MAESTRO_PLUGIN_DIR:-$HOME/.gemini/config/plugins/maestro}/scripts/gate_controller.py" run gate-ui --subsystem <subsystem>
+   ```
+8. **Git action (Gate UI pass, per UI subsystem):** freeze the UI contract on the integration
+   branch, tagged with the subsystem's issue number:
+   ```bash
+   uv run python3 "${MAESTRO_PLUGIN_DIR:-$HOME/.gemini/config/plugins/maestro}/scripts/commit_artifacts.py" ui-spec --subsystem <subsystem> --issue <n>
+   ```
+   The frozen `ui-spec.json` is the seam the Phase 4 front-end implementer builds against — the
+   implementer never grades its own homework (same lesson as the orthogonal test suite).
 
 ---
 
@@ -115,20 +226,36 @@ For each subsystem:
 2. Produce:
    - `tests/contract/<subsystem>/test_contract_<subsystem>.py` (status-code & schema verification)
    - `tests/behavioral/<subsystem>/test_behavioral_<subsystem>.py` (PRD user-story assertions)
-3. Invariant: Tests must be generated orthogonally from `docs/PRD.md` and `openapi.yaml` without reading or generating implementation code.
+3. Invariant: Tests must be generated orthogonally from `docs/PRD.md`, the frozen `openapi.yaml`, and the `docs/traceability.md` coverage bar (which PRD User Stories this subsystem must satisfy) — **not** from the implementer-owned, living `SPEC.md` — without reading or generating implementation code.
 4. **Capture Cryptographic RED-Lock**:
    Verify orthogonal tests fail cleanly against unimplemented domain code and capture SHA256 hashes:
    ```bash
    uv run python3 "${MAESTRO_PLUGIN_DIR:-$HOME/.gemini/config/plugins/maestro}/scripts/verify_red_suite.py" lock --subsystem <subsystem>
    ```
 5. Advancement to Phase 4 requires an active RED-lock manifest in `.maestro/red_lock/<subsystem>.json`.
+6. **Git action (RED-lock, per subsystem):** freeze the *locked* orthogonal suite — the contract
+   and behavioral tests plus the RED-lock manifest — on the integration branch, so every worktree
+   cut from it inherits the identical frozen oracle:
+   ```bash
+   uv run python3 "${MAESTRO_PLUGIN_DIR:-$HOME/.gemini/config/plugins/maestro}/scripts/commit_artifacts.py" tests --subsystem <subsystem>
+   ```
+7. **Git action (Phase 3 → Phase 4 boundary — after ALL subsystems are locked & committed):** cut
+   one `issue/<n>-<slug>` worktree per subsystem from the integration branch. Build the spec from
+   the captured subsystem→issue map (dry-run first, then apply):
+   ```bash
+   # spec.json: [{"subsystem": "redirect_resolver", "issue": 12}, {"subsystem": "link_store", "issue": 7}]
+   uv run python3 "${MAESTRO_PLUGIN_DIR:-$HOME/.gemini/config/plugins/maestro}/scripts/worktree_manager.py" create --integration "maestro/<prd-slug>" --spec spec.json --dry-run
+   uv run python3 "${MAESTRO_PLUGIN_DIR:-$HOME/.gemini/config/plugins/maestro}/scripts/worktree_manager.py" create --integration "maestro/<prd-slug>" --spec spec.json
+   ```
+   Each implementer in Phase 4 runs inside its own worktree at `.maestro/worktrees/<subsystem>/`.
+   This is *git-level* isolation; it complements — does not replace — the path-level boundary guard.
 
 ---
 
 ### Phase 4: Clean-Architecture TDD Implementation & Gate Suite
 For each subsystem:
 1. Invoke the **Specialist Implementer** persona (`/code-implement`) via `invoke_subagent` (Template 6, `TypeName: "self"`) with `MAESTRO_ACTIVE_ROLE=implementer`.
-2. Implement domain code following the TDD Red-Green-Refactor loop and pattern blueprint (restricted by boundary guard from modifying `tests/contract/` or `tests/behavioral/`).
+2. Implement domain code following the TDD Red-Green-Refactor loop and pattern blueprint, deriving behavior from the frozen `openapi.yaml` + cited PRD acceptance criteria and maintaining the subsystem's own living `SPEC.md` in sync with the code (restricted by boundary guard from modifying `tests/contract/` or `tests/behavioral/`, and instructed not to read them as an implementation source — the orthogonal suite is an independent Gate 4 oracle, not a spec).
 3. Execute mechanical code quality & test gates via the Gate Controller:
    ```bash
    uv run python3 "${MAESTRO_PLUGIN_DIR:-$HOME/.gemini/config/plugins/maestro}/scripts/gate_controller.py" run gate-3 --subsystem <subsystem>
@@ -140,6 +267,40 @@ For each subsystem:
    - If exit code is `1` $\to$ Capture JSON failure diagnostics emitted by `gate_controller.py`.
    - Dispatch targeted repair task (Template 7) to `/code-implement` with failure trace.
    - If exit code is `3` (Circuit Breaker Tripped) $\to$ **HALT execution immediately** and escalate to human user.
+6. **Git action (per subsystem, gates green):** from the subsystem's worktree, open and
+   **machine-merge** its PR into the integration branch. The script re-runs a fresh proof
+   (`gate-3` + `gate-4` + `redlock`) and squash-merges **only** on all-green; a red proof leaves the
+   PR open and exits non-zero (fix via the remediation loop, then re-ship):
+   ```bash
+   cd .maestro/worktrees/<subsystem>
+   uv run python3 "${MAESTRO_PLUGIN_DIR:-$HOME/.gemini/config/plugins/maestro}/scripts/ship_pr.py" subsystem --integration "maestro/<prd-slug>" --dry-run
+   uv run python3 "${MAESTRO_PLUGIN_DIR:-$HOME/.gemini/config/plugins/maestro}/scripts/ship_pr.py" subsystem --integration "maestro/<prd-slug>"
+   ```
+   This is the same engine the `/ship` skill drives; the issue number and subsystem are derived from
+   the `issue/<n>-<slug>` branch. Never hand-merge with `gh`.
+
+#### Phase 4 (UI track — only for subsystems with a frozen `ui-spec.json`)
+Skip this block for backend-only subsystems. For a subsystem that froze a UI contract at Gate UI,
+build its front-end **in the same worktree**, *before* the ship step above so the front-end merges in
+the subsystem's single PR:
+
+7. Invoke the **Front-End Implementer** persona (`/frontend-implement`) via `invoke_subagent` using
+   Template 9 (`TypeName: "self"`) with `MAESTRO_ACTIVE_ROLE=implementer` (the `implementer` role
+   already covers `src/modules/<subsystem>/frontend/` — no new role). It materializes, from the
+   frozen `ui-spec.json` + design system, the Flask app under `src/modules/<subsystem>/frontend/`:
+   one route per screen (endpoint-name == screen-id), Jinja templates, `url_for` navigation, and a
+   generated token-only `static/tokens.css`. It writes Flask test-client tests to full coverage.
+8. Execute the mechanical front-end conformance gate:
+   ```bash
+   uv run python3 "${MAESTRO_PLUGIN_DIR:-$HOME/.gemini/config/plugins/maestro}/scripts/gate_controller.py" run gate-frontend --subsystem <subsystem>
+   ```
+   `gate-frontend` checks tokens.css byte-identity, zero magic colors, screen↔template bijection, and
+   `url_for` nav wiring against the frozen contract. It runs the same remediation loop as gate-3/4.
+9. No separate ship step: the front-end lives in the subsystem's worktree, so the **same**
+   `ship_pr.py subsystem` command already run above merges it — the script auto-appends
+   `gate-frontend` to its fresh proof whenever `src/modules/<subsystem>/frontend/` exists, so a red
+   front-end blocks the merge exactly like a red gate-4. (Run the front-end build/gate *before* the
+   ship command for a UI subsystem.)
 
 ---
 
@@ -155,6 +316,17 @@ For each subsystem:
 ### Phase 6: Final Delivery & Master Audit Record
 1. Compile the master audit record summarizing all gate runs, test coverage, and artifact links.
 2. Present the finished solution to the user with a comprehensive traceability matrix ($PRD \leftrightarrow ADR \leftrightarrow Contract \leftrightarrow Code \leftrightarrow Tests \leftrightarrow Deploy$).
+3. **Git action (end of run):** once every subsystem PR has merged into the integration branch,
+   open the single consolidated `integration → main` PR. The script opens it and **stops** — it
+   contains no code path that merges to `main`. Relay the PR URL; the **human** reviews and merges
+   (backed by the branch protection verified in preflight).
+   ```bash
+   uv run python3 "${MAESTRO_PLUGIN_DIR:-$HOME/.gemini/config/plugins/maestro}/scripts/ship_pr.py" integration --integration "maestro/<prd-slug>" --base main
+   ```
+4. **Tear down worktrees** (branches are left intact for the merge):
+   ```bash
+   uv run python3 "${MAESTRO_PLUGIN_DIR:-$HOME/.gemini/config/plugins/maestro}/scripts/worktree_manager.py" teardown
+   ```
 
 ---
 
@@ -169,6 +341,15 @@ For each subsystem:
    - Subagents must be dispatched with targeted prompt templates and explicit file paths, never bloated history.
 4. **Strict Boundary Guard**:
    - Worker agents must only modify files within their assigned subsystem boundary (`src/modules/<subsystem>/`).
+5. **Protected `main`**:
+   - No agent ever commits, pushes, or merges to `main`/`master`. All work lands on the integration
+     branch or a subsystem branch; the only path into `main` is the human-merged integration PR.
+6. **Lock before parallel**:
+   - Subsystem worktrees are cut only after every RED suite is locked **and committed** on the
+     integration branch. Cutting a worktree before the oracle is frozen is forbidden.
+7. **Mechanical git actions only**:
+   - Commits, issue sync, worktrees, and merges go through the Maestro scripts (which refuse on
+     violation), never through hand-run `git commit`/`gh merge`.
 
 ---
 
@@ -180,6 +361,9 @@ For each subsystem:
 | *"I can approve the ADRs myself to speed up the run."* | Gate 0.5 is an explicit Human-in-the-Loop checkpoint. Only the human can approve. |
 | *"I'll implement the code and write tests in the same subagent."* | Test Architect and Implementer must remain orthogonal personas to prevent self-fulfilling test bias. |
 | *"I'll retry until it works."* | Retries are strictly capped at 3 attempts to prevent runaway loops and token drain. |
+| *"I'll cut the worktrees now and lock the tests inside them later."* | Lock before parallel. A worktree cut before the RED suite is committed inherits no oracle — Gate 4 would have nothing to verify. |
+| *"I'll merge the integration branch to `main` to finish the run."* | Maestro never merges to `main`. `ship_pr.py integration` only *opens* the PR; the human merges. |
+| *"I'll `git commit` these docs directly, it's faster."* | Freezes go through `commit_artifacts.py`, which forces the file set and refuses protected branches. A hand commit can smuggle code into a docs freeze. |
 
 ---
 
@@ -191,5 +375,11 @@ Ship only when all acceptance criteria are verified:
 - [ ] Mechanical gate commands specified for every phase transition.
 - [ ] Gate 0.5 Human-In-The-Loop checkpoint explicitly documented as non-bypassable.
 - [ ] Bounded remediation loop capped at max 3 attempts with escalation path.
+- [ ] Version-Control Spine wired: preflight + integration-branch cut at start; a git action on
+      every gate-pass transition (PRD, architecture, spec, ui-spec, tests/RED-lock, worktrees,
+      subsystem ship, integration PR); each driven by its Maestro script with a dry-run.
+- [ ] Optional UI track wired: Phase 2 dispatches `/ux-design` → `gate-ui` → freeze `ui-spec.json`,
+      and Phase 4 dispatches `/frontend-implement` → `gate-frontend`, both **only** for subsystems
+      with a UI and both skipped entirely for backend-only subsystems.
 - [ ] Reference files linked in `references/`.
 - [ ] `evals/trigger_evals.json` committed with balanced should-trigger and should-NOT-trigger queries.

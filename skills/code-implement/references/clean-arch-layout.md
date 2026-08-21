@@ -9,8 +9,8 @@ This guide defines the directory and structural invariants that the **Specialist
 ```
 src/modules/<subsystem>/
 ├── __init__.py
-├── openapi.yaml                 # Frozen external HTTP contract (Gate 1)
-├── SPEC.md                      # Frozen behavioral specification (Gate 1)
+├── openapi.yaml                 # Frozen external HTTP contract (Gate 2)
+├── SPEC.md                      # Living design doc: Tech-Lead-seeded (Gate 2), implementer-maintained
 ├── domain/                      # PURE business logic & entities (NO I/O)
 │   ├── __init__.py
 │   ├── models.py                # Frozen domain dataclasses & StrEnums

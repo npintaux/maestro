@@ -74,6 +74,81 @@ run_gate_contract() {
     echo "✅ [Gate Contract] Passed."
 }
 
+run_gate_ui() {
+    # gate-ui: frozen ui-spec.json contract validation (front-end / UXP track).
+    # Optional per subsystem — a subsystem without a ui-spec.json is simply skipped in the
+    # all-subsystems sweep. The design system defaults to the shipped corporate tokens, or a
+    # project-local design-system/ directory when present.
+    local ds_arg=()
+    if [ -d "design-system" ]; then
+        ds_arg=(--design-system design-system)
+    fi
+    local prd_arg=()
+    if [ -f "docs/PRD.md" ]; then
+        prd_arg=(--prd docs/PRD.md)
+    fi
+
+    if [ -z "$SUBSYSTEM" ]; then
+        echo "▶ [Gate UI] Validating ui-spec.json across all subsystems in src/modules..."
+        local found=0
+        for mod in src/modules/*; do
+            if [ -d "$mod" ] && [ -f "$mod/ui-spec.json" ]; then
+                found=1
+                echo "  -> Checking ui-spec for '$mod/ui-spec.json'..."
+                uv run python3 "$SCRIPT_DIR/validate_ui_spec.py" "$mod/ui-spec.json" "${ds_arg[@]}" "${prd_arg[@]}"
+            fi
+        done
+        if [ "$found" -eq 0 ]; then
+            echo "  (No subsystems with ui-spec.json found in src/modules/)"
+        fi
+    else
+        local spec_path="src/modules/$SUBSYSTEM/ui-spec.json"
+        echo "▶ [Gate UI] Validating ui-spec for '$spec_path'..."
+        if [ ! -f "$spec_path" ]; then
+            echo "❌ ui-spec file not found: $spec_path"
+            exit 1
+        fi
+        uv run python3 "$SCRIPT_DIR/validate_ui_spec.py" "$spec_path" "${ds_arg[@]}" "${prd_arg[@]}"
+    fi
+    echo "✅ [Gate UI] Passed."
+}
+
+run_gate_frontend() {
+    # gate-frontend: conformance of an implemented Flask/Jinja/CSS front-end to the frozen
+    # ui-spec.json + design system (tokens.css sync, zero magic colors, screen bijection, nav
+    # wiring). Optional per subsystem — a subsystem without a frontend/ directory is skipped in the
+    # all-subsystems sweep. Design system defaults to shipped tokens, or a project-local
+    # design-system/ directory when present.
+    local ds_arg=()
+    if [ -d "design-system" ]; then
+        ds_arg=(--design-system design-system)
+    fi
+
+    if [ -z "$SUBSYSTEM" ]; then
+        echo "▶ [Gate Frontend] Validating front-end conformance across all subsystems in src/modules..."
+        local found=0
+        for mod in src/modules/*; do
+            if [ -d "$mod" ] && [ -d "$mod/frontend" ]; then
+                found=1
+                echo "  -> Checking front-end for '$mod'..."
+                uv run python3 "$SCRIPT_DIR/validate_frontend.py" "$mod" "${ds_arg[@]}"
+            fi
+        done
+        if [ "$found" -eq 0 ]; then
+            echo "  (No subsystems with a frontend/ directory found in src/modules/)"
+        fi
+    else
+        local sub_path="src/modules/$SUBSYSTEM"
+        echo "▶ [Gate Frontend] Validating front-end conformance for '$sub_path'..."
+        if [ ! -d "$sub_path/frontend" ]; then
+            echo "❌ front-end directory not found: $sub_path/frontend"
+            exit 1
+        fi
+        uv run python3 "$SCRIPT_DIR/validate_frontend.py" "$sub_path" "${ds_arg[@]}"
+    fi
+    echo "✅ [Gate Frontend] Passed."
+}
+
 run_gate_boundaries() {
     if [ -n "$SUBSYSTEM" ]; then
         local target_paths="${3:-src/modules/$SUBSYSTEM}"
@@ -167,6 +242,12 @@ case "$STAGE" in
     gate-security|security)
         run_gate_security
         ;;
+    gate-ui|ui)
+        run_gate_ui
+        ;;
+    gate-frontend|frontend)
+        run_gate_frontend
+        ;;
     gate-2|gate-contract|contract)
         run_gate_contract
         ;;
@@ -198,12 +279,14 @@ case "$STAGE" in
         fi
         if [ -d "src/modules" ]; then
             run_gate_contract
+            run_gate_ui
+            run_gate_frontend
             run_gate_code_quality
         fi
         run_gate_test_coverage
         ;;
     *)
-        echo "❌ Unknown stage '$STAGE'. Valid stages: gate-0, gate-adversarial, gate-0.5, gate-1, gate-security, gate-2 (contract), gate-3 (code-quality), gate-4 (test-coverage), boundaries, redlock, all"
+        echo "❌ Unknown stage '$STAGE'. Valid stages: gate-0, gate-adversarial, gate-0.5, gate-1, gate-security, gate-ui, gate-frontend, gate-2 (contract), gate-3 (code-quality), gate-4 (test-coverage), boundaries, redlock, all"
         exit 1
         ;;
 esac

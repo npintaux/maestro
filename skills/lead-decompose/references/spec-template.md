@@ -1,6 +1,6 @@
 # Subsystem Specification: [Subsystem Name] (`src/modules/[subsystem_name]/`)
 
-> **Status**: `FROZEN / SPEC-DRIVEN DEVELOPMENT BASELINE (Gate 1)`  
+> **Status**: `LIVING DESIGN DOCUMENT — Tech-Lead-seeded (Gate 2), implementer-maintained`  
 > **Source**: Subsystem Tech Lead (`/lead-decompose`)  
 > **Parent Architecture**: [`architecture.md`](file:///home/user/orchestrated-coding/architecture.md)  
 > **Business Requirements**: [`docs/PRD.md`](file:///home/user/orchestrated-coding/docs/PRD.md)  

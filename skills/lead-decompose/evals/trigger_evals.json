@@ -28,7 +28,7 @@
     },
     {
       "quadrant": "Q1_direct",
-      "query": "perform Gate 1 micro-decomposition for the customer accounts subsystem",
+      "query": "perform Gate 2 micro-decomposition for the customer accounts subsystem",
       "expect": "trigger",
       "split": "val"
     },

@@ -11,7 +11,7 @@ Every subsystem lives in its own isolated module under `src/modules/<subsystem>/
 ```
 src/modules/<subsystem>/
 ├── openapi.yaml                 # Frozen API contract (OpenAPI 3.1)
-├── SPEC.md                      # Frozen behavioral specification & pattern declaration
+├── SPEC.md                      # Living design doc (Tech-Lead-seeded, implementer-maintained) & pattern declaration
 ├── __init__.py
 ├── domain/                      # PURE DOMAIN LAYER (Zero external I/O or framework imports)
 │   ├── __init__.py

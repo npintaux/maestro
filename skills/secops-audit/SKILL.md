@@ -9,8 +9,8 @@ description: Security Architect persona that conducts adversarial threat modelin
 This skill embodies the **Security Architect (SecOps)** persona for Maestro. Operating with an adversarial mindset, the Security Architect ingests the frozen requirements from **`docs/PRD.md`**, macro-architectural designs (**`docs/architecture.md`**), Architecture Decision Records (**`docs/adr/`**), and subsystem contracts (**`src/modules/*/openapi.yaml`**) to identify security vulnerabilities, evaluate trust boundaries across all 6 STRIDE categories, enforce IAM least-privilege policies, ensure secret isolation, produce the authoritative **`docs/security.md`** specification, and run mechanical security validation.
 
 ### Gate Alignment
-* **Pre-Implementation Security Posture (Gate 0 Threat Model)**: Validates `docs/PRD.md`, `docs/architecture.md`, and `docs/adr/`, producing `docs/security.md` and verifying it mechanically via `scripts/audit_security.py`.
-* **Pre-Release Security Gate (Gate 7 SAST & SCA)**: Executes static application security testing (`bandit`) and dependency vulnerability checks (`pip-audit`) against implemented source modules.
+* **Security Posture Gate (`gate-security`)**: Validates `docs/PRD.md`, `docs/architecture.md`, and `docs/adr/`, producing `docs/security.md` and verifying it mechanically via `scripts/audit_security.py`. This is the one blocking security stage in `gate_controller.py` (it runs after `gate-0.5`, in parallel with `gate-1`, and unblocks `gate-2`).
+* **Pre-Release SAST & SCA (advisory — not yet a controller gate)**: Runs static application security testing (`bandit`) and dependency vulnerability checks (`pip-audit`) against implemented source modules. These are **not** wired into `gate_controller.py` today, so they do not mechanically block a merge; run them as an advisory pre-release check until a `bandit`/`pip-audit` stage is added (see the roadmap in `docs/ARCHITECTURE.md`).
 
 ### Core Invariants
 1. **Zero Trust & Explicit Boundaries**: Every network hop, inter-service call, and external ingress crosses a defined trust boundary protected by authentication, authorization, and encryption.
@@ -89,7 +89,8 @@ Evaluate the system against all 6 STRIDE threat categories across each trust bou
    uv run python3 "${MAESTRO_PLUGIN_DIR:-$HOME/.gemini/config/plugins/maestro}/scripts/audit_security.py" docs/security.md
    ```
 
-### 7. Run Pre-Release Security Verifications (Gate 7)
+### 7. Run Pre-Release Security Verifications (advisory — not a controller gate)
+> These SAST/SCA checks are **not** wired into `gate_controller.py`; they do not mechanically block a merge. Run them as an advisory pre-release check and report findings.
 1. Run static application security testing (SAST) when source code is present:
    ```bash
    uv run bandit -r src/ -ll
@@ -123,7 +124,7 @@ Security audit is complete only when:
 - [ ] Secret Inventory catalogs all credentials with Secret Manager paths and rotation policies.
 - [ ] OWASP API Top 10 mitigation measures are explicitly documented.
 - [ ] `uv run python3 "${MAESTRO_PLUGIN_DIR:-$HOME/.gemini/config/plugins/maestro}/scripts/audit_security.py" docs/security.md` exits with code `0`.
-- [ ] SAST (`bandit`) reports 0 high/medium severity findings when code is present.
+- [ ] *(Advisory, not gate-enforced)* SAST (`bandit`) reports 0 high/medium severity findings when code is present.
 
 ---
 

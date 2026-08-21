@@ -33,14 +33,13 @@ paths:
           description: fallback
 """
 
-SPEC = """# Subsystem Specification: shortener_api
+TRACEABILITY = """# Story <-> Subsystem Traceability Matrix
 
-> **Selected Domain Pattern**: `decision-list`
-
-| Component | US |
+| User Story | Subsystems |
 |---|---|
-| C1 | US-1 (AC-1.1) |
-| C2 | US-2 (AC-2.1) |
+| US-1 | src/modules/shortener_api |
+| US-2 | src/modules/shortener_api |
+| US-3 | src/modules/redirect_resolver |
 """
 
 PRD = """# PRD
@@ -87,7 +86,7 @@ def _core(**overrides: str) -> CoverageAuditReport:
     """Invoke the pure core with valid defaults, overriding named documents."""
     kwargs: dict[str, str] = {
         "openapi_text": OPENAPI,
-        "spec_text": SPEC,
+        "traceability_text": TRACEABILITY,
         "contract_test_text": CONTRACT_TEST,
         "behavioral_test_text": BEHAVIORAL_TEST,
         "prd_text": PRD,
@@ -136,23 +135,28 @@ def test_us1_only() -> None:
     assert any("'US-2'" in v and "no behavioral test references it" in v for v in report.violations)
 
 
-def test_spec_claims_unknown_story_fails() -> None:
-    """Verify a SPEC story absent from the PRD is flagged as a traceability break."""
-    spec = "> **Selected Domain Pattern**: `decision-list`\n\n| C1 | US-9 (AC-9.1) |\n"
+def test_traceability_maps_unknown_story_fails() -> None:
+    """Verify a matrix story absent from the PRD is flagged as a traceability break."""
+    traceability = (
+        "| User Story | Subsystems |\n|---|---|\n| US-9 | src/modules/shortener_api |\n"
+    )
     behavioral = '''def test_us9() -> None:
     """[US-9] covers story 9."""
     assert True
 '''
-    report = _core(spec_text=spec, behavioral_test_text=behavioral)
+    report = _core(traceability_text=traceability, behavioral_test_text=behavioral)
     assert report.is_valid is False
     assert any("'US-9'" in v and "not defined in docs/PRD.md" in v for v in report.violations)
 
 
-def test_spec_with_no_stories_fails() -> None:
-    """Verify a SPEC declaring no User Stories cannot pass the coverage gate."""
-    report = _core(spec_text="> **Selected Domain Pattern**: `repository-service`\n")
+def test_traceability_maps_no_stories_to_subsystem_fails() -> None:
+    """Verify a matrix mapping no stories to this subsystem cannot pass the coverage gate."""
+    traceability = (
+        "| User Story | Subsystems |\n|---|---|\n| US-3 | src/modules/redirect_resolver |\n"
+    )
+    report = _core(traceability_text=traceability)
     assert report.is_valid is False
-    assert any("declares no PRD User Stories" in v for v in report.violations)
+    assert any("maps no PRD User Stories" in v for v in report.violations)
 
 
 def test_missing_contract_suite_fails() -> None:
@@ -185,10 +189,7 @@ def test_malformed_openapi_flags_parse_error() -> None:
 
 def test_openapi_non_dict_and_odd_shapes_yield_no_codes() -> None:
     """Verify non-dict specs and malformed path/operation nodes contribute no status codes."""
-    report = _core(
-        openapi_text="- just a list\n",
-        spec_text="> x\n",  # no stories -> at least one violation keeps it invalid
-    )
+    report = _core(openapi_text="- just a list\n")
     assert report.documented_status_codes == []
 
 
@@ -248,7 +249,6 @@ def _scaffold(tmp_path: Path) -> Path:
     module_dir = tmp_path / "src" / "modules" / "shortener_api"
     module_dir.mkdir(parents=True)
     (module_dir / "openapi.yaml").write_text(OPENAPI, encoding="utf-8")
-    (module_dir / "SPEC.md").write_text(SPEC, encoding="utf-8")
 
     contract_dir = tmp_path / "tests" / "contract" / "shortener_api"
     contract_dir.mkdir(parents=True)
@@ -263,6 +263,7 @@ def _scaffold(tmp_path: Path) -> Path:
     docs_dir = tmp_path / "docs"
     docs_dir.mkdir()
     (docs_dir / "PRD.md").write_text(PRD, encoding="utf-8")
+    (docs_dir / "traceability.md").write_text(TRACEABILITY, encoding="utf-8")
 
     return module_dir / "openapi.yaml"
 
@@ -280,9 +281,9 @@ def test_audit_subsystem_tests_missing_files(tmp_path: Path) -> None:
     module_dir = tmp_path / "src" / "modules" / "shortener_api"
     module_dir.mkdir(parents=True)
     (module_dir / "openapi.yaml").write_text(OPENAPI, encoding="utf-8")
-    (module_dir / "SPEC.md").write_text(SPEC, encoding="utf-8")
     (tmp_path / "docs").mkdir()
     (tmp_path / "docs" / "PRD.md").write_text(PRD, encoding="utf-8")
+    (tmp_path / "docs" / "traceability.md").write_text(TRACEABILITY, encoding="utf-8")
 
     report = audit_subsystem_tests(module_dir / "openapi.yaml")
     assert report.is_valid is False
@@ -313,9 +314,9 @@ def test_main_cli_failure(tmp_path: Path, capsys: pytest.CaptureFixture[str]) ->
     module_dir = tmp_path / "src" / "modules" / "shortener_api"
     module_dir.mkdir(parents=True)
     (module_dir / "openapi.yaml").write_text(OPENAPI, encoding="utf-8")
-    (module_dir / "SPEC.md").write_text(SPEC, encoding="utf-8")
     (tmp_path / "docs").mkdir()
     (tmp_path / "docs" / "PRD.md").write_text(PRD, encoding="utf-8")
+    (tmp_path / "docs" / "traceability.md").write_text(TRACEABILITY, encoding="utf-8")
 
     exit_code = main([str(module_dir / "openapi.yaml")])
     assert exit_code == 1

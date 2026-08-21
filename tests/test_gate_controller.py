@@ -64,6 +64,23 @@ def test_check_interlocks() -> None:
     assert "gate-security" in missing_2
 
 
+def test_check_interlocks_gate_ui() -> None:
+    state = GateState(completed_stages=[])
+    assert check_interlocks("gate-ui", state) == ["gate-0.5"]
+
+    state.completed_stages.append("gate-0.5")
+    assert check_interlocks("gate-ui", state) == []
+
+
+def test_check_interlocks_gate_frontend() -> None:
+    state = GateState(completed_stages=["gate-0.5"])
+    # gate-frontend requires the frozen ui-spec (gate-ui) before it can validate the code.
+    assert check_interlocks("gate-frontend", state) == ["gate-ui"]
+
+    state.completed_stages.append("gate-ui")
+    assert check_interlocks("gate-frontend", state) == []
+
+
 def test_execute_gate_interlock_blocked(tmp_path: Path) -> None:
     state_file = tmp_path / "state.json"
     exit_code, result = execute_gate(

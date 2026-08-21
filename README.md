@@ -13,7 +13,7 @@
 3. **Drafts & Freezes Interface Contracts** (`openapi.yaml`, Protobufs, Schemas, or Interface ABCs) audited for PRD traceability.
 4. **Binds Pluggable Technology Archetypes** (Python, Go, TypeScript, Rust, etc.) with strict coding and documentation governance.
 5. **Spawns an Orthogonal Swarm** of specialized subagents (Developers $\ne$ Testers) operating in isolated contexts.
-6. **Enforces Mechanical Hard Gates** (Linters, Typecheckers, 100% Unit Test Coverage via strict TDD, Mutation Adequacy, and SAST) where exit codes $\ne 0$ block delivery.
+6. **Enforces Mechanical Hard Gates** (Linters, Typecheckers, 100% Unit Test Coverage via strict TDD, OpenAPI contract validation, and status-code/User-Story coverage audits) where exit codes $\ne 0$ block delivery.
 7. **Generates Cloud Deployment Infrastructure** (Google Cloud Platform / Cloud Run, Terraform, Dockerfiles) ready for production.
 
 ---
@@ -54,17 +54,21 @@ That's it. Maestro conducts the entire swarm, enforces the gates, and delivers a
 
 ## 👥 The Persona Skills Catalogue
 
-Maestro equips your environment with 7 clean-context persona skills. Subagents invoke these skills independently to maintain pure focus, while mechanical scripts and lifecycle hooks enforce non-negotiable gates:
+Maestro equips your environment with 11 clean-context persona skills. Subagents invoke these skills independently to maintain pure focus, while mechanical scripts and lifecycle hooks enforce non-negotiable gates:
 
 | Persona | Skill Name | Responsibility & Clean Context Boundary |
 | :--- | :--- | :--- |
 | **Master Conductor** | `/conduct` | Coordinates the 6-phase lifecycle, manages agent budget, and triggers phase transitions. |
 | **Intake Gatekeeper** | `/prd-validate` | Ingests PRD, performs **WAF-Driven Intake Assessment**, and clarifies missing NFRs before freezing `PRD.md`. |
+| **Product Owner** | `/prd-to-backlog` | Reconciles `docs/PRD.md` into `type:story` GitHub issues (idempotent `src-sha` sync, MoSCoW priority) via the `gh` CLI. |
 | **Cloud Architect** | `/architect-design` | Performs Tier-1 Macro-Decomposition; benchmarks architecture against the **GCP Well-Architected Framework (WAF)** and drafts MADRs. |
 | **Security Architect** | `/secops-audit` | Conducts STRIDE threat modeling, IAM least-privilege verification, and secret boundary audits. |
-| **Subsystem Tech Lead** | `/lead-decompose` | Performs Tier-2 Micro-Decomposition into modules/services and drafts frozen OpenAPI contracts and SPEC.md. |
+| **Subsystem Tech Lead** | `/lead-decompose` | Performs Tier-2 Micro-Decomposition into modules/services, drafts the frozen OpenAPI contract, and seeds the living SPEC.md. |
+| **UX/UI Designer** | `/ux-design` | *(UI subsystems only)* Authors and freezes the token-only, accessible `ui-spec.json` UI contract + design system; imports Claude Design exports as advisory input. Writes no UI code (`gate-ui`). |
 | **Independent Test Architect** | `/test-architect` | **Orthogonal Verifier**: Derives behavioral and contract test suites directly from the PRD & contracts in a clean context. |
 | **Specialist Implementer** | `/code-implement` | Implements business logic in isolated directories using **strict TDD** and pattern blueprints. |
+| **Front-End Implementer** | `/frontend-implement` | *(UI subsystems only)* Builds the web front-end (Flask + Jinja/HTML + CSS by default) from the frozen `ui-spec.json`: generated `tokens.css`, one route/template per screen, `url_for`-wired nav, token-only CSS, 100% Flask-test-client coverage (`gate-frontend`). |
+| **Release Manager** | `/ship` | Opens PRs and enforces the merge policy mechanically: machine-merge `issue/* → integration` only on fresh green proof; open (never merge) the `integration → main` PR. |
 
 > **Mechanical Gate Enforcement & Remediation**: Gate execution is handled by `scripts/gate_controller.py` (interlocked state machine + strict 3-attempt circuit breaker) rather than an LLM referee, ensuring zero discretion on test, linter, or security failures.
 
@@ -110,6 +114,10 @@ archetypes/
 └── rust-clean-arch/           # Rust: Cargo clippy, Cargo test, Rustdoc
 ```
 
+> **Today:** `python-clean-arch` (Python 3.13) is the shipped reference archetype. The Go,
+> TypeScript, and Rust packs above illustrate the pluggable shape and are on the roadmap — the
+> orchestration core is already stack-agnostic, so adding a pack is a plugin-author task.
+
 Each archetype provides:
 1. **`archetype.json`**: Tooling commands (linter, typechecker, test runner, coverage target).
 2. **`conventions/code-layout.md` & `.env`**: Deterministic directory placement and file naming rules.
@@ -124,7 +132,7 @@ Each archetype provides:
 Maestro is **install-and-use**. You never open, copy, or edit a pattern file — the pattern logic ships *hidden inside the plugin*, and Maestro generates finished code for your subsystem. There are three distinct things, and **only one of them ever lands in your repository**:
 
 1. **Blueprints — hidden, shared, static.** Each of the 5 domain patterns has one canonical, gate-passing reference implementation bundled inside the plugin (`archetypes/<stack>/templates/patterns/<pattern>/`). It is identical for every project and is **never copied into your repo**.
-2. **Spec — generated per project.** During decomposition, the Tech Lead writes `SPEC.md` declaring the chosen `pattern:` and your domain model — the concrete states, rules, or entities drawn from *your* PRD. This is requirements, not code.
+2. **Spec — generated per project.** During decomposition, the Tech Lead *seeds* `SPEC.md` declaring the chosen `pattern:` and your domain model — the concrete states, rules, or entities drawn from *your* PRD — which the Implementer thereafter owns and keeps in sync with the code as a **living design document**. This is design, not code; the frozen behavioral truth lives in `openapi.yaml` + the PRD.
 3. **Your code — generated per project.** The Implementer reads the hidden blueprint as its reference and synthesizes finished, 100%-tested code into `src/modules/<subsystem>/`. The reusable machinery comes from the blueprint; the domain specifics come from your spec.
 
 > **Example.** The `state-machine` blueprint knows the *shape* of a finite state machine. For an order-management PRD, Maestro generates a `DRAFT → SUBMITTED → APPROVED → FULFILLED` transition table; for a booking PRD, a completely different table — both from the same hidden blueprint. You describe the workflow; Maestro writes the code.
@@ -151,6 +159,7 @@ Under cognitive task pressure, LLM subagents ignore prose instructions. **Maestr
                                 │
                                 ▼
 [Micro Decomposition]   ──► [Gate 2: OpenAPI 3.x Contract & SPEC.md Traceability]
+                        ──► [Gate UI: Frozen ui-spec.json — token-only, WCAG, nav-FSM (UI subsystems only)]
                                 │
                                 ▼
 [Orthogonal Tests]      ──► [tests/contract/ & tests/behavioral/ Generated (test-author role)]
@@ -159,7 +168,8 @@ Under cognitive task pressure, LLM subagents ignore prose instructions. **Maestr
                                 ▼
 [TDD Implementation]    ──► [PreToolUse Hook: Role & Directory Boundary Guard (implementer role)]
                         ──► [Gate 3: Ruff Linter + Mypy Strict + 1-Class-per-File Audit]
-                        ──► [Gate 4: RED-Lock Check + 100% Pytest Coverage + Endpoint Audit + Pip-Audit]
+                        ──► [Gate 4: RED-Lock Check + 100% Pytest Coverage + Endpoint & User-Story Coverage Audit]
+                        ──► [Gate Frontend: tokens.css sync + zero magic colors + screen↔template bijection + url_for nav (UI subsystems only)]
                                 │
                                 ▼
 [Release Engineering]   ──► [Dockerfile + Cloud Build CI Scaffolding]
@@ -169,17 +179,36 @@ If any gate fails (Exit Code $\ne 0$), the diagnostic is captured by `scripts/ga
 
 ---
 
-## 🗺️ Future Roadmap: Git Worktrees & Autonomous PR Lifecycle
+## 🔗 The Version-Control Spine (built)
 
-To support team-scale concurrency and true enterprise Git workflows, future versions of Maestro will introduce:
+Maestro no longer just generates code on disk — it drives the full git/GitHub lifecycle, with
+every non-negotiable re-anchored to a mechanical gate. **For the complete end-to-end walkthrough
+see [`docs/WORKFLOW.md`](docs/WORKFLOW.md); the design rationale is in
+[`docs/version-control-plan.md`](docs/version-control-plan.md).** In brief:
 
-* **Git Worktree Isolation**: Each module subagent operates in a dedicated, isolated `git worktree` (`git worktree add ../feature-module-x`).
-* **Autonomous Branch & PR Lifecycle**:
-  * Implementer subagents commit against issue branches with conventional commits.
-  * Subagents open Pull Requests (PRs) targeting `main`.
-  * The Gatekeeper and Security Architect subagents review and approve PRs via MCP GitHub integrations.
-  * Autonomous merge conflict resolution and upstream rebasing.
-* **Multi-Repo Federation**: Orchestrating cross-repository contracts across microservice fleets.
+* **Two-axis issue model**: `type:story` issues (PO-owned, born from `docs/PRD.md`) and
+  `type:subsystem` issues (engineering-owned, one per subsystem) are many-to-many, linked by the
+  gated `docs/traceability.md` matrix — neither is generated from the other.
+* **Per-run integration branch**: each `/conduct` run cuts `maestro/<prd-slug>` from `main`. All
+  pre-parallel artifacts (PRD, ADRs, architecture, contracts) and the **RED-lock** are committed
+  there first, so every subsystem inherits the identical frozen oracle.
+* **Git worktree isolation**: each subsystem runs on `issue/<n>-<slug>` in its own worktree under
+  `.maestro/worktrees/<subsystem>/`, cut from the integration branch *after* the RED suite is
+  locked (`scripts/worktree_manager.py`). This is git-level isolation that *complements* the
+  path-level boundary guard.
+* **Mechanical merge policy**: subsystem PRs (`issue/* → integration`) are **machine-merged only
+  on a fresh green proof** (gate-3 + gate-4 + RED-lock re-check, via `scripts/ship_pr.py`). The
+  single human-in-the-loop merge is one consolidated `integration → main` PR, enforced by branch
+  protection on `main`.
+* **`gh` CLI, not MCP**: all GitHub interaction goes through the `gh` CLI per the Antigravity
+  `permissioned-github` contract.
+
+### Still on the roadmap
+
+* **Multi-stack archetypes**: `python-clean-arch` is the reference archetype today; Go, TypeScript,
+  and Rust packs are planned (see *Pluggable Stack Architecture* above).
+* **Multi-Repo Federation**: orchestrating cross-repository contracts across microservice fleets.
+* **Ports to Gemini CLI and Claude Code**: the dispatch and GitHub-auth paths are Antigravity-first today.
 
 ---
 
